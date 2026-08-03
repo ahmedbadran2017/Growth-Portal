@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "autoname": "format:{entity_type}::{entity_id}::{source}::{day}",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "entity_type",
+  "entity_id",
+  "source",
+  "day",
+  "maturity",
+  "c1",
+  "spend",
+  "revenue",
+  "orders",
+  "delivered",
+  "clicks",
+  "impressions",
+  "sessions",
+  "extra"
+ ],
+ "fields": [
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Product\nSupplier\nSource Market\nCreative\nCampaign\nPage\nMedia Buyer",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "entity_id",
+   "fieldtype": "Data",
+   "label": "Entity",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1,
+   "description": "erpnext | meta | google_ads | tiktok | shopify | clarity | semrush | ga4"
+  },
+  {
+   "fieldname": "day",
+   "fieldtype": "Date",
+   "label": "Day",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "maturity",
+   "fieldtype": "Select",
+   "label": "Maturity",
+   "options": "Provisional\nMaturing\nFinal",
+   "default": "Provisional",
+   "description": "Judging a Provisional day reads an unfinished number."
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "spend",
+   "fieldtype": "Currency",
+   "label": "Spend"
+  },
+  {
+   "fieldname": "revenue",
+   "fieldtype": "Currency",
+   "label": "Revenue"
+  },
+  {
+   "fieldname": "orders",
+   "fieldtype": "Float",
+   "label": "Orders"
+  },
+  {
+   "fieldname": "delivered",
+   "fieldtype": "Float",
+   "label": "Delivered",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "clicks",
+   "fieldtype": "Float",
+   "label": "Clicks"
+  },
+  {
+   "fieldname": "impressions",
+   "fieldtype": "Float",
+   "label": "Impressions"
+  },
+  {
+   "fieldname": "sessions",
+   "fieldtype": "Float",
+   "label": "Sessions"
+  },
+  {
+   "fieldname": "extra",
+   "fieldtype": "Code",
+   "label": "Extra",
+   "options": "JSON"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Entity Metric",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "entity_id",
+ "track_changes": 0
+}

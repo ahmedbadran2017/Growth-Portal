@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "autoname": "format:{source}::{run_day}",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "source",
+  "run_day",
+  "ok",
+  "c1",
+  "rows_written",
+  "duration_ms",
+  "detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "run_day",
+   "fieldtype": "Date",
+   "label": "Run Day",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "ok",
+   "fieldtype": "Check",
+   "label": "OK",
+   "default": "0",
+   "in_list_view": 1,
+   "description": "A source silently returning no rows looks identical to one reporting zeros. The first is a broken token; the second is an emergency."
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "rows_written",
+   "fieldtype": "Int",
+   "label": "Rows"
+  },
+  {
+   "fieldname": "duration_ms",
+   "fieldtype": "Int",
+   "label": "Duration ms"
+  },
+  {
+   "fieldname": "detail",
+   "fieldtype": "Code",
+   "label": "Detail",
+   "options": "JSON"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Source Sync",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "source",
+ "track_changes": 0
+}

@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "autoname": "format:{metric}::{day}",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "metric",
+  "day",
+  "numerator",
+  "denominator",
+  "denominator_source",
+  "c1",
+  "ratio",
+  "baseline",
+  "deviation_pct",
+  "is_anomaly"
+ ],
+ "fields": [
+  {
+   "fieldname": "metric",
+   "fieldtype": "Data",
+   "label": "Metric",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "day",
+   "fieldtype": "Date",
+   "label": "Day",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "numerator",
+   "fieldtype": "Float",
+   "label": "Numerator",
+   "reqd": 1
+  },
+  {
+   "fieldname": "denominator",
+   "fieldtype": "Float",
+   "label": "Denominator",
+   "reqd": 1
+  },
+  {
+   "fieldname": "denominator_source",
+   "fieldtype": "Data",
+   "label": "Denominator Source",
+   "reqd": 1,
+   "description": "Both sides must come from one system. A cross-source ratio measures market share, not performance."
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "ratio",
+   "fieldtype": "Float",
+   "label": "Ratio",
+   "precision": "4",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "baseline",
+   "fieldtype": "Float",
+   "label": "Baseline",
+   "precision": "4"
+  },
+  {
+   "fieldname": "deviation_pct",
+   "fieldtype": "Percent",
+   "label": "Deviation",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "is_anomaly",
+   "fieldtype": "Check",
+   "label": "Anomaly",
+   "default": "0",
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Control Ratio",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "metric",
+ "track_changes": 0
+}

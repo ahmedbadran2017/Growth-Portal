@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "autoname": "field:sales_order",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_order",
+  "order_date",
+  "entity_id",
+  "amount",
+  "c1",
+  "outcome",
+  "reason_category",
+  "is_terminal",
+  "s1",
+  "final_status",
+  "courier",
+  "resolved_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "entity_id",
+   "fieldtype": "Data",
+   "label": "Item Code",
+   "search_index": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "COD Amount"
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "outcome",
+   "fieldtype": "Select",
+   "label": "Outcome",
+   "options": "In Transit\nDelivered\nCancelled\nUnreachable\nRefused\nReturned\nOther",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "reason_category",
+   "fieldtype": "Select",
+   "label": "Reason Owner",
+   "options": "\nProduct\nConfirmation\nLead Quality\nLogistics\nDuplicate\nCustomer\nUnknown",
+   "in_list_view": 1,
+   "search_index": 1,
+   "description": "Who can actually fix this failure"
+  },
+  {
+   "fieldname": "is_terminal",
+   "fieldtype": "Check",
+   "label": "Terminal",
+   "default": "0"
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Source"
+  },
+  {
+   "fieldname": "final_status",
+   "fieldtype": "Data",
+   "label": "Courier Status (raw)"
+  },
+  {
+   "fieldname": "courier",
+   "fieldtype": "Data",
+   "label": "Courier"
+  },
+  {
+   "fieldname": "resolved_on",
+   "fieldtype": "Datetime",
+   "label": "Resolved On"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Delivery Outcome",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "sales_order",
+ "track_changes": 0
+}

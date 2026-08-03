@@ -1,0 +1,73 @@
+{%- extends "templates/web.html" %}
+
+{%- block head %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Justyol Growth Portal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#fafaf9">
+
+{{ include_style("growth_portal.bundle.css") }}
+<style>
+  /* Hide Frappe's default website chrome */
+  .web-footer, .website-footer,
+  .navbar, .web-navbar,
+  .page-header, .page-header-wrapper,
+  .website-image-banner, .hero-banner,
+  .banner-image, .web-banner,
+  footer, nav.navbar {
+    display: none !important;
+  }
+  /* Remove Frappe/Bootstrap container width limits so the app goes full-width */
+  .main-section,
+  [data-page-container],
+  .container[data-page-container],
+  .main-section > .container,
+  [data-page-container] > .container,
+  .page-content-wrapper,
+  section.container,
+  .web-content .container,
+  .container:has(#app) {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #app { min-height: 100vh; width: 100%; }
+  body { overflow-x: hidden; }
+</style>
+{%- endblock %}
+
+{%- block navbar %}{%- endblock %}
+{%- block hero %}{%- endblock %}
+{%- block header %}{%- endblock %}
+{%- block footer %}{%- endblock %}
+
+{%- block page_content %}
+<div id="app" dir="rtl"></div>
+{%- endblock %}
+
+{%- block script %}
+<script>
+  (function () {
+    var ctx = {{ portal_shell | tojson }};
+    window.csrf_token = ctx.csrf_token;
+    window.site_name = ctx.site_name;
+    window.user_id = ctx.user_id;
+    window.full_name = ctx.full_name;
+    window.user_roles = ctx.user_roles;
+    // Frappe stamps datetimes in the SITE timezone, not UTC — and this site
+    // runs on Istanbul time while the business operates in Morocco.
+    window.growth_portal_tz = ctx.time_zone;
+  })();
+</script>
+<noscript>
+  <div style="padding:2rem;text-align:center;font-family:system-ui;">
+    البورتال محتاج JavaScript مفعّل.
+  </div>
+</noscript>
+{{ include_script("growth_portal.bundle.js") }}
+{%- endblock %}

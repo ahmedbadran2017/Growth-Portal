@@ -1,0 +1,156 @@
+{
+ "actions": [],
+ "autoname": "format:{entity_type}::{metric}",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "entity_type",
+  "metric",
+  "source",
+  "enabled",
+  "higher_is_better",
+  "c1",
+  "min_sample",
+  "min_weight",
+  "min_days",
+  "s1",
+  "gap_act",
+  "gap_material",
+  "c2",
+  "impact_floor",
+  "kill_at",
+  "dormant_after_days"
+ ],
+ "fields": [
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Select",
+   "label": "Entity Type",
+   "options": "Product\nSupplier\nSource Market\nCreative\nCampaign\nPage\nMedia Buyer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "metric",
+   "fieldtype": "Data",
+   "label": "Metric",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source",
+   "reqd": 1,
+   "description": "Numerator and denominator both come from here. A cross-source rule is refused at judging time."
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "higher_is_better",
+   "fieldtype": "Check",
+   "label": "Higher Is Better",
+   "default": "1"
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "min_sample",
+   "fieldtype": "Int",
+   "label": "Min Sample",
+   "default": "60",
+   "description": "Below this the engine issues Watch, not a verdict."
+  },
+  {
+   "fieldname": "min_weight",
+   "fieldtype": "Currency",
+   "label": "Min Weight",
+   "default": "5000",
+   "description": "Money floor. Order count alone once promoted a 54 MAD packaging line to a Grow verdict."
+  },
+  {
+   "fieldname": "min_days",
+   "fieldtype": "Int",
+   "label": "Min Window Days",
+   "default": "14"
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Thresholds"
+  },
+  {
+   "fieldname": "gap_act",
+   "fieldtype": "Float",
+   "label": "Act Gap (pp)",
+   "default": "8",
+   "description": "A gap this size is acted on regardless of money."
+  },
+  {
+   "fieldname": "gap_material",
+   "fieldtype": "Float",
+   "label": "Material Gap (pp)",
+   "default": "3"
+  },
+  {
+   "fieldname": "c2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "impact_floor",
+   "fieldtype": "Currency",
+   "label": "Impact Floor",
+   "default": "5000",
+   "description": "A smaller gap still acts if it costs at least this per month. Without it a 6.6pp gap on high volume stays invisible while a 10.7pp gap worth a quarter as much gets reported."
+  },
+  {
+   "fieldname": "kill_at",
+   "fieldtype": "Float",
+   "label": "Kill Below",
+   "description": "Absolute floor. Leave empty to never issue Kill."
+  },
+  {
+   "fieldname": "dormant_after_days",
+   "fieldtype": "Int",
+   "label": "Dormant After (days)"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Growth Rule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "metric",
+ "track_changes": 1
+}

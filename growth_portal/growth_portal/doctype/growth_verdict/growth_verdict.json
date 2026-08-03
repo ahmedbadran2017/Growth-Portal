@@ -1,0 +1,198 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "headline",
+  "s1",
+  "entity_type",
+  "entity_id",
+  "entity_label",
+  "metric",
+  "c1",
+  "verdict",
+  "impact_mad",
+  "status",
+  "s2",
+  "numerator",
+  "denominator",
+  "denominator_source",
+  "c2",
+  "window_start",
+  "window_end",
+  "sample_size",
+  "s3",
+  "evidence",
+  "query_ref",
+  "recommended_action"
+ ],
+ "fields": [
+  {
+   "fieldname": "headline",
+   "fieldtype": "Data",
+   "label": "Headline",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Subject"
+  },
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Select",
+   "label": "Entity Type",
+   "options": "Product\nSupplier\nSource Market\nCreative\nCampaign\nPage\nMedia Buyer",
+   "reqd": 1,
+   "search_index": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "entity_id",
+   "fieldtype": "Data",
+   "label": "Entity",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "entity_label",
+   "fieldtype": "Data",
+   "label": "Label"
+  },
+  {
+   "fieldname": "metric",
+   "fieldtype": "Data",
+   "label": "Metric"
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "verdict",
+   "fieldtype": "Select",
+   "label": "Verdict",
+   "options": "Grow\nFix\nDormant\nKill\nWatch",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "impact_mad",
+   "fieldtype": "Currency",
+   "label": "Monthly Impact",
+   "in_list_view": 1,
+   "description": "Ranking key. A verdict without a money number is an observation."
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nAcknowledged\nActioned\nDismissed\nSuperseded",
+   "default": "Open",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "s2",
+   "fieldtype": "Section Break",
+   "label": "Evidence (mandatory)"
+  },
+  {
+   "fieldname": "numerator",
+   "fieldtype": "Float",
+   "label": "Numerator",
+   "reqd": 1
+  },
+  {
+   "fieldname": "denominator",
+   "fieldtype": "Float",
+   "label": "Denominator",
+   "reqd": 1
+  },
+  {
+   "fieldname": "denominator_source",
+   "fieldtype": "Data",
+   "label": "Denominator Source",
+   "reqd": 1
+  },
+  {
+   "fieldname": "c2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "window_start",
+   "fieldtype": "Date",
+   "label": "Window Start",
+   "reqd": 1
+  },
+  {
+   "fieldname": "window_end",
+   "fieldtype": "Date",
+   "label": "Window End",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sample_size",
+   "fieldtype": "Int",
+   "label": "Sample Size",
+   "description": "Below the rule's minimum the engine issues Watch, not a verdict."
+  },
+  {
+   "fieldname": "s3",
+   "fieldtype": "Section Break",
+   "label": "Detail"
+  },
+  {
+   "fieldname": "evidence",
+   "fieldtype": "Code",
+   "label": "Evidence",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "query_ref",
+   "fieldtype": "Small Text",
+   "label": "Query Reference",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recommended_action",
+   "fieldtype": "Small Text",
+   "label": "Recommended Action"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Growth Verdict",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "headline",
+ "track_changes": 0
+}

@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "autoname": "field:source",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "source",
+  "label",
+  "enabled",
+  "c1",
+  "timezone",
+  "maturity_hours",
+  "account_id",
+  "s1",
+  "credential_key",
+  "s2",
+  "last_ok",
+  "last_error",
+  "c2",
+  "last_rows",
+  "consecutive_failures"
+ ],
+ "fields": [
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "description": "erpnext | meta | google_ads | tiktok | shopify | clarity | semrush | ga4 | appsflyer"
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "label": "Display Name",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "0",
+   "in_list_view": 1,
+   "description": "A source is enabled only once it returns rows. An enabled stub makes the health strip lie green."
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "description": "Its OWN reporting timezone, not the site's. Meta dataset stats are Pacific while the account is Casablanca."
+  },
+  {
+   "fieldname": "maturity_hours",
+   "fieldtype": "Int",
+   "label": "Maturity Hours",
+   "default": "24",
+   "description": "How long its numbers keep moving after a day closes."
+  },
+  {
+   "fieldname": "account_id",
+   "fieldtype": "Data",
+   "label": "Account / Property ID"
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Credentials"
+  },
+  {
+   "fieldname": "credential_key",
+   "fieldtype": "Data",
+   "label": "site_config key",
+   "description": "Secrets live in site_config.json, never in a doctype row."
+  },
+  {
+   "fieldname": "s2",
+   "fieldtype": "Section Break",
+   "label": "Last Check"
+  },
+  {
+   "fieldname": "last_ok",
+   "fieldtype": "Datetime",
+   "label": "Last Successful Pull",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "c2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "last_rows",
+   "fieldtype": "Int",
+   "label": "Rows Last Pull",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consecutive_failures",
+   "fieldtype": "Int",
+   "label": "Consecutive Failures",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Source Connection",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "source",
+ "track_changes": 1
+}

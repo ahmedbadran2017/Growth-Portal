@@ -1,0 +1,15 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include growth_portal *.css
+recursive-include growth_portal *.csv
+recursive-include growth_portal *.html
+recursive-include growth_portal *.js
+recursive-include growth_portal *.json
+recursive-include growth_portal *.md
+recursive-include growth_portal *.py
+recursive-include growth_portal *.svg
+recursive-exclude growth_portal *.pyc

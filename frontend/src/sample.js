@@ -1,0 +1,222 @@
+/* Sample payloads for reviewing the interface without a bench.
+
+   These are not invented numbers. The verdicts are the output of running the
+   real engine over real ERPNext rows for 6 Jul – 2 Aug 2026, so the layout is
+   being judged against the shape of data it will actually receive.
+
+   The connection rows are honest too: four adapters are written, five are not,
+   and none of them has pulled a row on this laptop. */
+
+export const SAMPLE = {
+  integrity: {
+    checked_at: "2026-08-03 09:00:00",
+    syncs: [
+      { source: "erpnext", run_day: "2026-08-03", ok: 1, rows_written: 2417, duration_ms: 4180 },
+    ],
+    anomalies: [
+      { metric: "items_per_order", day: "2026-07-28", ratio: 1.49, baseline: 1.84, deviation_pct: -19.0 },
+    ],
+    freshness: [{ source: "erpnext", latest: "2026-08-03" }],
+  },
+
+  connections: [
+    { source: "erpnext", label: "ERPNext", timezone: "Europe/Istanbul", maturity_hours: 6,
+      covers: "Orders, delivery outcomes, revenue", credential_key: null,
+      implemented: true, configured: true, enabled: true, healthy: true,
+      last_ok: "2026-08-03", last_rows: 2417, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "meta", label: "Meta Ads", timezone: "Africa/Casablanca", maturity_hours: 24,
+      covers: "Spend, creative, pixel events", credential_key: "meta_access_token",
+      implemented: true, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "google_ads", label: "Google Ads", timezone: "Europe/Istanbul", maturity_hours: 72,
+      covers: "Spend, PMAX value, conversion actions", credential_key: "google_ads_refresh_token",
+      implemented: true, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "tiktok", label: "TikTok Ads", timezone: "Europe/Istanbul", maturity_hours: 48,
+      covers: "Spend, creative, changelog", credential_key: "tiktok_access_token",
+      implemented: true, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "shopify", label: "Shopify", timezone: "Africa/Casablanca", maturity_hours: 12,
+      covers: "Sessions, add-to-cart, checkout", credential_key: "shopify_access_token",
+      implemented: false, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "ga4", label: "Google Analytics 4", timezone: "Africa/Casablanca", maturity_hours: 48,
+      covers: "Landing-page CVR, channel mix", credential_key: "ga4_credentials",
+      implemented: false, configured: false, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "clarity", label: "Microsoft Clarity", timezone: "UTC", maturity_hours: 24,
+      covers: "Rage clicks, dead clicks, scroll depth", credential_key: "clarity_api_token",
+      implemented: false, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "semrush", label: "SEMrush", timezone: "UTC", maturity_hours: 168,
+      covers: "Positions, organic traffic", credential_key: "semrush_api_key",
+      implemented: false, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+    { source: "appsflyer", label: "AppsFlyer", timezone: "UTC", maturity_hours: 48,
+      covers: "Installs, in-app events, mobile ROAS", credential_key: "appsflyer_api_token",
+      implemented: false, configured: true, enabled: false, healthy: false,
+      last_ok: null, last_rows: 0, consecutive_failures: 0, account_id: null, last_error: null },
+  ],
+
+  settings: {
+    alert_email: "ahmedbadran2017@gmail.com",
+    whatsapp_to: "",
+    whatsapp_webhook: false,
+    whatsapp_min_severity: "High",
+    window_days: 28,
+    judge_hour: 9,
+    agent_enabled: true,
+    agent_effort: "high",
+    agent_model: "claude-opus-5",
+    agent_can_execute: false,
+    api_key_configured: false,
+  },
+
+  rules: [
+    {
+      name: null, entity_type: "Product", metric: "delivery_rate", source: "erpnext",
+      enabled: 1, higher_is_better: 1, min_sample: 60, min_weight: 5000, min_days: 14,
+      gap_act: 8, gap_material: 3, impact_floor: 5000, kill_at: 60, dormant_after_days: null,
+    },
+  ],
+
+  alerts: [],
+  agentRuns: [],
+
+  verdicts: [
+    {
+      name: "V-0001",
+      entity_type: "Product",
+      entity_id: "45779757236478",
+      entity_label: "12 Li Standlı Kendinden Yapışkanlı Kapaklı Kaşıklı Baharatlık Takımı - Gray",
+      verdict: "Fix",
+      metric: "delivery_rate",
+      impact_mad: 8827,
+      headline: "77.5 vs 81.7 baseline",
+      recommended_action: "A 4.2 point gap on 895 orders costs ~8,827 MAD/month",
+      numerator: 694,
+      denominator: 895,
+      denominator_source: "erpnext",
+      window_start: "2026-07-06",
+      window_end: "2026-08-02",
+      sample_size: 895,
+      query_ref:
+        "growth_portal.analyzers.product.ProductAnalyzer.collect — latest Shipment Tracking row per sales_order, joined to Sales Order Item, grouped on item_code, rates over resolved orders only",
+      evidence: {
+        value: 77.54,
+        baseline: 81.67,
+        dominant_failure: "Confirmation",
+        refused_product: 8,
+        unreachable: 67,
+        cancelled_confirm: 75,
+        duplicate_or_denied: 21,
+        orders_placed: 969,
+      },
+    },
+    {
+      name: "V-0002",
+      entity_type: "Product",
+      entity_id: "45779740033278",
+      entity_label: "Set de 3 passoires métalliques avec crochets pour casseroles - STD",
+      verdict: "Watch",
+      metric: "delivery_rate",
+      impact_mad: 0,
+      headline: "Sample 13 — below the minimum of 60",
+      recommended_action: "Wait for a longer window before judging",
+      numerator: 9,
+      denominator: 13,
+      denominator_source: "erpnext",
+      window_start: "2026-07-06",
+      window_end: "2026-08-02",
+      sample_size: 13,
+      query_ref: "growth_portal.analyzers.product.ProductAnalyzer.collect",
+      evidence: { value: 69.2, baseline: 81.67 },
+    },
+    {
+      name: "V-0003",
+      entity_type: "Campaign",
+      entity_id: "tiktok:1870866421172754",
+      entity_label: "UGC-DPA-All-Campaign",
+      verdict: "Grow",
+      metric: "roas",
+      impact_mad: 11400,
+      headline: "15.90 — 4.20 points above baseline",
+      recommended_action: "The same spend buys a better result here — a candidate to scale",
+      numerator: 31020,
+      denominator: 1951,
+      denominator_source: "tiktok",
+      window_start: "2026-07-06",
+      window_end: "2026-08-02",
+      sample_size: 25,
+      query_ref:
+        "growth_portal.analyzers.campaign.CampaignAnalyzer.collect — Entity Metric where source=tiktok, summed per campaign over the window; value = platform-reported revenue ÷ platform-reported spend, both from tiktok",
+      evidence: {
+        value: 15.9, baseline: 11.7, platform: "tiktok", currency: "TRY",
+        cpa: 78, cpm: 19.4, orders: 25, provisional_days: 2,
+        revenue_basis: "count_x_value",
+        series: [9.1, 10.4, 12.8, 11.2, 14.6, 13.9, 16.2, 15.1, 17.8, 15.9],
+      },
+    },
+    {
+      name: "V-0004",
+      entity_type: "Campaign",
+      entity_id: "google:23776204545",
+      entity_label: "App Install | Android | 2026-04 (new version)",
+      verdict: "Kill",
+      metric: "roas",
+      impact_mad: 9640,
+      headline: "0.20 — below the viability floor of 1.5",
+      recommended_action: "Stop the spend — the gap costs ~9,640 MAD/month",
+      numerator: 2011,
+      denominator: 9854,
+      denominator_source: "google_ads",
+      window_start: "2026-07-06",
+      window_end: "2026-08-02",
+      sample_size: 1681,
+      query_ref:
+        "growth_portal.analyzers.campaign.CampaignAnalyzer.collect — Entity Metric where source=google_ads, summed per campaign over the window; value = platform-reported revenue ÷ platform-reported spend, both from google_ads",
+      evidence: {
+        value: 0.2, baseline: 3.8, platform: "google_ads", currency: "TRY",
+        cpa: 5.9, orders: 1681, provisional_days: 3,
+        series: [0.4, 0.3, 0.35, 0.28, 0.22, 0.25, 0.19, 0.21, 0.2, 0.2],
+      },
+    },
+  ],
+
+  campaignVerdicts: [],
+
+  findings: [
+    {
+      name: "F-0001",
+      title:
+        "The worst-delivering product is the only one still named in Turkish — 77.5% vs 81.7% baseline",
+      severity: "High",
+      status: "Open",
+      entity_type: "Product",
+      entity_id: "45779757236478",
+      creation: "2026-08-03 09:04:00",
+      body:
+        "Among products above the weight floor, this is the only one still carrying its Turkish name while the rest were renamed to French. Its largest failure source is cancellation at confirmation or at the door (75 orders), not refusal of the product itself (8) — consistent with a customer who agrees on the phone and backs out on seeing the item. The number is a fact; the link to language is a hypothesis that needs a test: rename to French and measure the same rate over 14 days.",
+      evidence: {
+        numerator: 694,
+        denominator: 895,
+        denominator_source: "erpnext",
+        window_start: "2026-07-06",
+        window_end: "2026-08-02",
+        query_ref: "growth_portal.analyzers.product.ProductAnalyzer.collect",
+      },
+    },
+  ],
+
+  entity: {
+    entity: {
+      entity_key: "45779757236478",
+      entity_type: "Product",
+      entity_label: "12 Li Standlı Kendinden Yapışkanlı Kapaklı Kaşıklı Baharatlık Takımı - Gray",
+      source: "erpnext",
+    },
+    series: [],
+    verdicts: [],
+    changes: [],
+  },
+};

@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "autoname": "naming_series:AGENT-.YYYY.-.#####",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "task",
+  "status",
+  "c1",
+  "model",
+  "effort",
+  "tool_call_count",
+  "s1",
+  "finding",
+  "tool_calls",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "task",
+   "fieldtype": "Data",
+   "label": "Task",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Running\nDone\nRefused\nFailed",
+   "default": "Running",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "effort",
+   "fieldtype": "Data",
+   "label": "Effort"
+  },
+  {
+   "fieldname": "tool_call_count",
+   "fieldtype": "Int",
+   "label": "Tool Calls",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Output"
+  },
+  {
+   "fieldname": "finding",
+   "fieldtype": "Text Editor",
+   "label": "Finding"
+  },
+  {
+   "fieldname": "tool_calls",
+   "fieldtype": "Code",
+   "label": "Tool Trace",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Data",
+   "label": "Series",
+   "hidden": 1,
+   "default": "AGENT-.YYYY.-.#####"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Agent Run",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "task",
+ "track_changes": 0
+}

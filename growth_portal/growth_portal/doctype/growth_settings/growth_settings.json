@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "s0",
+  "alert_email",
+  "whatsapp_to",
+  "c0",
+  "whatsapp_webhook",
+  "whatsapp_min_severity",
+  "s1",
+  "window_days",
+  "c1",
+  "judge_hour",
+  "s2",
+  "agent_enabled",
+  "agent_effort",
+  "c2",
+  "agent_model",
+  "agent_can_execute"
+ ],
+ "fields": [
+  {
+   "fieldname": "s0",
+   "fieldtype": "Section Break",
+   "label": "Alerts"
+  },
+  {
+   "fieldname": "alert_email",
+   "fieldtype": "Data",
+   "label": "Alert Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "whatsapp_to",
+   "fieldtype": "Data",
+   "label": "WhatsApp Number"
+  },
+  {
+   "fieldname": "c0",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "whatsapp_webhook",
+   "fieldtype": "Data",
+   "label": "WhatsApp Webhook"
+  },
+  {
+   "fieldname": "whatsapp_min_severity",
+   "fieldtype": "Select",
+   "label": "WhatsApp Minimum Severity",
+   "options": "Critical\nHigh\nMedium\nLow",
+   "default": "High",
+   "description": "A phone that buzzes for routine findings stops being read within a week."
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "Judging"
+  },
+  {
+   "fieldname": "window_days",
+   "fieldtype": "Int",
+   "label": "Judging Window (days)",
+   "default": "28",
+   "description": "Shortest span where this catalogue's delivery rates stop swinging on single-day noise."
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "judge_hour",
+   "fieldtype": "Int",
+   "label": "Daily Run Hour",
+   "default": "9",
+   "description": "Site time. Must be late enough that the previous day is mature."
+  },
+  {
+   "fieldname": "s2",
+   "fieldtype": "Section Break",
+   "label": "Agent"
+  },
+  {
+   "fieldname": "agent_enabled",
+   "fieldtype": "Check",
+   "label": "Agent Enabled",
+   "default": "1"
+  },
+  {
+   "fieldname": "agent_effort",
+   "fieldtype": "Select",
+   "label": "Reasoning Effort",
+   "options": "low\nmedium\nhigh\nxhigh",
+   "default": "high"
+  },
+  {
+   "fieldname": "c2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "agent_model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "default": "claude-opus-5"
+  },
+  {
+   "fieldname": "agent_can_execute",
+   "fieldtype": "Check",
+   "label": "Allow Execution",
+   "default": "0",
+   "read_only": 1,
+   "description": "Locked off. The agent has no write tool on any ad platform; this flag is a placeholder for a future approval queue, not a switch."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Growth Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
