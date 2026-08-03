@@ -101,9 +101,33 @@ class TikTokSource(SourceAdapter):
                 page += 1
         return out
 
+    def _budgets(self, advertiser_id):
+        """Campaign budgets and delivery state.
+
+        This account's campaigns are Upgraded Smart+, where budget can sit at
+        either level; `budget` here is what the campaign itself authorises, and
+        a zero means the ad group holds it.
+        """
+        out, page = {}, 1
+        while True:
+            data = self._get("campaign/get/", {
+                "advertiser_id": advertiser_id, "page": page, "page_size": 1000,
+            })
+            for c in data.get("list") or []:
+                out[str(c["campaign_id"])] = {
+                    "budget": float(c.get("budget") or 0),
+                    "budget_type": (c.get("budget_mode") or "").replace("BUDGET_MODE_", "").lower(),
+                    "delivery_status": c.get("secondary_status") or c.get("operation_status") or "",
+                }
+            info = data.get("page_info") or {}
+            if page >= (info.get("total_page") or 1):
+                return out
+            page += 1
+
     def metrics(self, date_from: date, date_to: date):
         rows = []
         for adv in self.advertisers:
+            budgets = self._budgets(adv)
             for r in self._report(adv, "AUCTION_CAMPAIGN",
                                   ["campaign_id", "stat_time_day"], date_from, date_to):
                 dim, met = r.get("dimensions") or {}, r.get("metrics") or {}
@@ -130,6 +154,9 @@ class TikTokSource(SourceAdapter):
                     clicks=int(float(met.get("clicks") or 0)),
                     orders=payments,
                     revenue=revenue,
+                    budget=budgets.get(str(dim.get("campaign_id")), {}).get("budget", 0.0),
+                    budget_type=budgets.get(str(dim.get("campaign_id")), {}).get("budget_type", ""),
+                    delivery_status=budgets.get(str(dim.get("campaign_id")), {}).get("delivery_status", ""),
                     extra={
                         "platform": "tiktok",
                         "advertiser_id": adv,

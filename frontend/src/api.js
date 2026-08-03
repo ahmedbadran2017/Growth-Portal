@@ -63,6 +63,7 @@ export const api = {
   products: (p = {}) => withFallback("overview.products", p, "products"),
   buyers: () => withFallback("buyers.performance", {}, "buyers"),
   buyerActivity: () => withFallback("buyers.activity", {}, "buyerActivity"),
+  capacity: () => withFallback("capacity.campaigns", {}, "capacity"),
   connections: () => withFallback("config.connections", {}, "connections"),
   settings: () => withFallback("config.settings", {}, "settings"),
   rules: () => withFallback("config.rules", {}, "rules"),

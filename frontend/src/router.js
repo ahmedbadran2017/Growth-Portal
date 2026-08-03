@@ -4,6 +4,7 @@ const routes = [
   { path: "/", redirect: "/overview" },
   { path: "/overview", component: () => import("./pages/Overview.vue") },
   { path: "/segments", component: () => import("./pages/Segments.vue") },
+  { path: "/capacity", component: () => import("./pages/Capacity.vue") },
   { path: "/buyers", component: () => import("./pages/Buyers.vue") },
   { path: "/verdicts", component: () => import("./pages/Verdicts.vue") },
   { path: "/findings", component: () => import("./pages/Findings.vue") },

@@ -30,7 +30,10 @@ PURCHASE_ACTIONS = ("purchase", "cod purchase", "easysellpurchase")
 
 CAMPAIGN_GAQL = """
     SELECT campaign.id, campaign.name, campaign.status,
-           campaign.advertising_channel_type, segments.date,
+           campaign.advertising_channel_type, campaign.primary_status,
+           campaign_budget.amount_micros, campaign_budget.period,
+           campaign_budget.explicitly_shared,
+           segments.date,
            metrics.cost_micros, metrics.impressions, metrics.clicks
     FROM campaign
     WHERE segments.date BETWEEN '{f}' AND '{t}'
@@ -160,6 +163,15 @@ class GoogleAdsSource(SourceAdapter):
             m.impressions += r.metrics.impressions
             m.clicks += r.metrics.clicks
             m.extra["channel"] = r.campaign.advertising_channel_type.name
+            m.budget = (r.campaign_budget.amount_micros or 0) / 1_000_000
+            m.budget_type = (
+                "shared" if r.campaign_budget.explicitly_shared
+                else r.campaign_budget.period.name.lower()
+            )
+            # `primary_status` is Google's own explanation for why a campaign is
+            # or is not delivering — LIMITED_BY_BUDGET reads very differently
+            # from ELIGIBLE at the same 11% utilization.
+            m.delivery_status = r.campaign.primary_status.name
 
         for r in self._search(CONVERSION_GAQL.format(f=f, t=t)):
             # Conversions land on days a campaign spent nothing. Skipping those

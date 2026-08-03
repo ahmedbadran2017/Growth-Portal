@@ -55,6 +55,9 @@ class CampaignAnalyzer(Analyzer):
         gap_material=1.5,
         impact_floor=4000.0,
         kill_at=1.5,            # below this the spend is structurally underwater
+        dormant_after_days=14,
+        min_utilization_to_grow=60.0,
+        max_step_pct=15.0,
     )
 
     def collect(self, window_start, window_end, source="meta"):
@@ -66,6 +69,11 @@ class CampaignAnalyzer(Analyzer):
                    SUM(m.orders)  AS orders,
                    SUM(m.clicks)  AS clicks,
                    SUM(m.impressions) AS impressions,
+                   AVG(NULLIF(m.budget,0)) AS budget,
+                   MAX(m.budget_type) AS budget_type,
+                   SUBSTRING_INDEX(GROUP_CONCAT(m.delivery_status ORDER BY m.day DESC SEPARATOR '\n'), '\n', 1) AS delivery_status,
+                   COUNT(DISTINCT m.day) AS active_days,
+                   DATEDIFF(%(t)s, MAX(m.day)) AS days_since_activity,
                    SUBSTRING_INDEX(GROUP_CONCAT(m.extra ORDER BY m.day DESC SEPARATOR '\\n'), '\\n', 1) AS any_extra,
                    MAX(e.entity_label) AS label,
                    MIN(m.day) AS first_day, MAX(m.day) AS last_day,
@@ -91,6 +99,12 @@ class CampaignAnalyzer(Analyzer):
                 continue
             revenue = float(r.revenue or 0)
             orders = float(r.orders or 0)
+            budget = float(r.budget or 0)
+            days = int(r.active_days or 0) or 1
+            # Utilization against authorised capacity over the days the campaign
+            # was actually live — not against the whole window, which would make
+            # anything paused mid-window look starved.
+            utilization = (100.0 * (spend / days) / budget) if budget else None
             try:
                 extra = json.loads(r.any_extra or "{}")
             except Exception:
@@ -125,6 +139,16 @@ class CampaignAnalyzer(Analyzer):
                     # to 48h and PMAX for 72h, so a window containing
                     # provisional days is understated by an unknown amount.
                     "provisional_days": int(r.provisional_days or 0),
+                    # Capacity. Without these a Grow verdict recommends raising
+                    # a budget that may already be 89% unspent.
+                    "budget": round(budget) if budget else None,
+                    "budget_type": r.budget_type or None,
+                    "spend_per_active_day": round(spend / days),
+                    "utilization": round(utilization, 1) if utilization is not None else None,
+                    "delivery_status": r.delivery_status or None,
+                    "headroom": round(budget * days - spend) if budget else None,
+                    "active_days": days,
+                    "days_since_activity": int(r.days_since_activity or 0),
                 },
             ))
         return out

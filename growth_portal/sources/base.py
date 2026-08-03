@@ -39,6 +39,15 @@ class MetricRow:
     impressions: float = 0.0
     clicks: float = 0.0
     sessions: float = 0.0
+
+    # Capacity, not performance. Every scaling decision made by hand was about
+    # headroom — "3 of 4 campaigns are budget-capped at 93-95%" was the whole
+    # decision — and a portal that only reports ratios cannot produce that
+    # sentence. `budget` is the authorised daily amount in account currency.
+    budget: float = 0.0
+    budget_type: str = ""        # daily | lifetime | shared | ""
+    delivery_status: str = ""    # the platform's own word for why it is or is not spending
+
     extra: dict = field(default_factory=dict)
 
 

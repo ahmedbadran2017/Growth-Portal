@@ -58,6 +58,20 @@ class Rule:
     kill_at: float | None = None  # absolute floor for structural loss
     dormant_after_days: int | None = None
 
+    #: A Grow verdict says "put more money here". That is not an action if the
+    #: entity is already free to spend more and isn't — Google's account runs at
+    #: 11% of authorised budget, so "scale this" would recommend pulling a lever
+    #: that is not connected to anything. Rows carrying `utilization` below this
+    #: are reported as Dormant-capacity instead: the constraint is delivery, not
+    #: budget. Rows with no utilization at all are unaffected.
+    min_utilization_to_grow: float = 60.0
+
+    #: Written from the most expensive lesson so far: a 104% budget increase on
+    #: TikTok took ROAS from 18.7 to 4.7 in two days and had to be reverted. A
+    #: Grow verdict now carries its own step ceiling rather than saying "scale"
+    #: and leaving the size to whoever reads it.
+    max_step_pct: float = 15.0
+
 
 def baseline(rows):
     """Peer baseline, computed from the same rows being judged.
@@ -124,15 +138,34 @@ def judge(rows, rule, window_start, window_end, query_ref, now=None):
                            f"{r.value:.1f} vs {base:.1f} baseline",
                            f"A {gap:.1f} point gap on {r.sample} orders costs ~{impact:,.0f} MAD/month"))
 
+        elif rule.dormant_after_days and r.extra.get("days_since_activity") is not None \
+                and r.extra["days_since_activity"] >= rule.dormant_after_days:
+            # Declared and never issued until now. An entity nobody has touched
+            # is a different problem from one performing badly, and folding it
+            # into Fix hides that nothing is being worked on at all.
+            out.append(_mk(DORMANT, r, rule, base, impact, window_start, window_end, query_ref,
+                           f"no activity for {r.extra['days_since_activity']} days",
+                           "Decide: restart it or retire it — it is neither running nor closed"))
+
         elif -gap >= rule.gap_act / 2 or (-gap >= rule.gap_material and impact >= rule.impact_floor):
             # Mirrors the Fix gate on purpose. Without the money clause the
             # single strongest scaling candidate in the catalogue — 3.1 points
             # above baseline on 127k of revenue — produces no verdict at all,
             # while a small product 4 points up produces one. Opportunities go
             # missing the same way problems do.
-            out.append(_mk(GROW, r, rule, base, impact, window_start, window_end, query_ref,
-                           f"{r.value:.1f} — {-gap:.1f} points above baseline",
-                           f"The same spend buys a better result here — a candidate to scale"))
+            util = r.extra.get("utilization")
+            if util is not None and util < rule.min_utilization_to_grow:
+                # It is performing well AND already free to spend more. Raising
+                # the budget changes nothing; the constraint is elsewhere.
+                out.append(_mk(WATCH, r, rule, base, impact, window_start, window_end, query_ref,
+                               f"{r.value:.1f} — above baseline but only {util:.0f}% of budget used",
+                               "Do not raise the budget — it is delivery-limited, not budget-limited. "
+                               f"Fix delivery first ({r.extra.get('delivery_status') or 'reason not reported'})."))
+            else:
+                step = f" Step no more than +{rule.max_step_pct:.0f}%." if rule.max_step_pct else ""
+                out.append(_mk(GROW, r, rule, base, impact, window_start, window_end, query_ref,
+                               f"{r.value:.1f} — {-gap:.1f} points above baseline",
+                               "The same spend buys a better result here — a candidate to scale." + step))
 
     out.sort(key=lambda v: v["impact_mad"], reverse=True)
     return out

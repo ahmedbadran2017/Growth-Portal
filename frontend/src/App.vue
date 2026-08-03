@@ -163,6 +163,7 @@
                 :products="products"
                 :buyers="buyers"
                 :buyerActivity="buyerActivity"
+                :capacity="capacity"
                 :settings="settings"
                 :rules="rules"
                 :loading="loading"
@@ -217,6 +218,7 @@ const suppliers = ref({});
 const products = ref({});
 const buyers = ref({});
 const buyerActivity = ref({});
+const capacity = ref({});
 const settings = ref({});
 const rules = ref([]);
 const loading = ref(true);
@@ -231,6 +233,7 @@ const problems = computed(
 const healthy = computed(() => problems.value === 0);
 const totalImpact = computed(() => verdicts.value.reduce((s, v) => s + (v.impact_mad || 0), 0));
 
+const capped = computed(() => capacity.value?.budget_capped || 0);
 const unwired = computed(() => connections.value.filter((c) => !c.healthy).length);
 
 const groups = computed(() => [
@@ -239,6 +242,7 @@ const groups = computed(() => [
     items: [
       { to: "/overview", label: "Overview", icon: "dashboard" },
       { to: "/verdicts", label: "Verdicts", icon: "gauge", count: verdicts.value.length },
+      { to: "/capacity", label: "Capacity", icon: "trend-up", warn: capped.value },
       { to: "/segments", label: "Suppliers & Products", short: "Segments", icon: "inbox" },
       { to: "/buyers", label: "Media Buyers", short: "Buyers", icon: "users" },
       { to: "/findings", label: "Findings", short: "Findings", icon: "flag", count: findings.value.length },
@@ -278,10 +282,12 @@ async function load() {
       integrity.value, verdicts.value, findings.value, connections.value,
       settings.value, rules.value, overview.value, daily.value,
       suppliers.value, products.value, buyers.value, buyerActivity.value,
+      capacity.value,
     ] = await Promise.all([
       api.integrity(), api.verdicts(), api.findings(), api.connections(),
       api.settings(), api.rules(), api.overview(), api.daily(),
       api.suppliers(), api.products(), api.buyers(), api.buyerActivity(),
+      api.capacity(),
     ]);
   } finally {
     loading.value = false;

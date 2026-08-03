@@ -144,6 +144,34 @@ export const SAMPLE = {
   },
   buyerActivity: { window_days: 30, summary: [], recent: [], coverage: [] },
 
+  capacity: {
+    window_days: 14,
+    totals: { spend: 21461, authorised: 194670, utilization: 11.0 },
+    budget_capped: 0, delivery_limited: 6, no_budget_data: 0,
+    headline:
+      "6 campaign(s) below 40% of budget — raising these does nothing, the constraint is delivery: App Install | Android | 20, JHome | PMAX | Morocco, PMAX | Fashion & Accessor",
+    rows: [
+      { entity_id: "google:23776204545", label: "App Install | Android | 2026-04 (new version)", platform: "google_ads",
+        spend: 11185, spend_per_day: 1598, budget: 15000, budget_type: "daily", utilization: 10.7,
+        unused: 93814, roas: 1.36, orders: 13, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+      { entity_id: "google:23725632206", label: "JHome | PMAX | Morocco", platform: "google_ads",
+        spend: 4523, spend_per_day: 646, budget: 8800, budget_type: "daily", utilization: 7.3,
+        unused: 57077, roas: 8.2, orders: 31, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+      { entity_id: "google:24081372659", label: "PMAX | Fashion & Accessories | MA", platform: "google_ads",
+        spend: 1785, spend_per_day: 255, budget: 640, budget_type: "daily", utilization: 39.8,
+        unused: 2695, roas: 0.77, orders: 1, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+      { entity_id: "google:22536302088", label: "ES | Branded Search | Max Value", platform: "google_ads",
+        spend: 1553, spend_per_day: 222, budget: 2000, budget_type: "daily", utilization: 11.1,
+        unused: 12447, roas: 14.9, orders: 19, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+      { entity_id: "google:24076392624", label: "PMAX | Beauty & Perfumes | MA", platform: "google_ads",
+        spend: 1525, spend_per_day: 218, budget: 730, budget_type: "daily", utilization: 29.9,
+        unused: 3585, roas: 0.55, orders: 1, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+      { entity_id: "google:24081372869", label: "PMAX | Rest of Catalog | MA", platform: "google_ads",
+        spend: 890, spend_per_day: 127, budget: 640, budget_type: "daily", utilization: 19.9,
+        unused: 3590, roas: 0.0, orders: 0, delivery_status: "ELIGIBLE", constraint: "delivery", active_days: 7, last_day: "2026-08-02" },
+    ],
+  },
+
   alerts: [],
   agentRuns: [],
 

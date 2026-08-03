@@ -88,6 +88,35 @@ class MetaSource(SourceAdapter):
                 return
             data = r.json()
 
+    def _budgets(self, act):
+        """Campaign budgets, fetched once per account and joined onto insights.
+
+        Meta reports budget on the campaign object and spend on insights, so a
+        single call cannot give both. Budgets are in minor units — 1500 means
+        15.00 — and dividing by 100 in the wrong place is a 100x error in the
+        one number scaling decisions rest on.
+        """
+        out = {}
+        for c in self._paged(f"{act}/campaigns", {
+            "fields": "id,daily_budget,lifetime_budget,effective_status,"
+                      "issues_info,budget_remaining",
+            "limit": 500,
+        }):
+            daily = c.get("daily_budget")
+            lifetime = c.get("lifetime_budget")
+            out[c["id"]] = {
+                "budget": (float(daily) / 100.0) if daily else
+                          (float(lifetime) / 100.0 if lifetime else 0.0),
+                "budget_type": "daily" if daily else ("lifetime" if lifetime else ""),
+                # Empty when the budget sits on the ad set rather than the
+                # campaign (Meta's ABO). Recorded as "adset" rather than 0 so a
+                # capacity view does not report "no budget" for a campaign that
+                # simply holds it one level down.
+                "delivery_status": c.get("effective_status") or "",
+                "issues": [i.get("error_summary") for i in (c.get("issues_info") or [])],
+            }
+        return out
+
     def _account_meta(self, act):
         if act not in self._meta:
             info = self._get(act, {"fields": "name,currency,timezone_name,account_status"})
@@ -114,6 +143,7 @@ class MetaSource(SourceAdapter):
         rows = []
         for act in self.accounts:
             info = self._account_meta(act)
+            budgets = self._budgets(act)
             params = {
                 "level": "campaign",
                 "time_increment": 1,
@@ -140,6 +170,9 @@ class MetaSource(SourceAdapter):
                     clicks=int(float(r.get("clicks") or 0)),
                     orders=_sum_actions(actions, PURCHASE_TYPES),
                     revenue=_sum_actions(values, PURCHASE_TYPES),
+                    budget=budgets.get(r["campaign_id"], {}).get("budget", 0.0),
+                    budget_type=budgets.get(r["campaign_id"], {}).get("budget_type") or "adset",
+                    delivery_status=budgets.get(r["campaign_id"], {}).get("delivery_status", ""),
                     extra={
                         "platform": "meta",
                         "account": act,
@@ -149,6 +182,7 @@ class MetaSource(SourceAdapter):
                         # is not the same day there.
                         "account_timezone": info.get("timezone_name"),
                         "attribution": "7d_click,1d_view",
+                        "issues": budgets.get(r["campaign_id"], {}).get("issues") or [],
                         "funnel": {
                             a.get("action_type"): float(a.get("value") or 0)
                             for a in (actions or [])

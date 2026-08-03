@@ -154,20 +154,27 @@ Unchanged from v1 except where the three new adapters landed:
 ## Part 6 — Order of work
 
 **Now, because it blocks every scaling decision:**
-1. `budget`, `budget_type`, `delivery_status` on `MetricRow` + all three adapters
-2. A capacity view: spend vs authorised budget vs delivery status per campaign
-3. Gate `Grow` on headroom — no "scale this" for an entity at 7% utilization
+1. ✅ `budget`, `budget_type`, `delivery_status` on `MetricRow` + all three adapters
+2. ✅ A capacity view: spend vs authorised budget vs delivery status per campaign
+3. ✅ Gate `Grow` on headroom — an entity below 60% utilization gets a Watch
+   saying "do not raise the budget, it is delivery-limited", not a Grow
 
 **Next, because it is what a wrong number costs:**
-4. The three missing control ratios
-5. A per-platform config audit writing `Growth Finding`
-6. Deploy events on the timeline
+4. ✅ The three missing control ratios — now four: `items_per_order`,
+   `confirmation_rate`, `delivery_rate`, `atc_to_purchase`
+5. ⬜ A per-platform config audit writing `Growth Finding`
+6. ⬜ Deploy events on the timeline (needs Shopify)
 
 **Then:**
-7. Step ceilings, pre-committed tests, automatic re-check
-8. Ad-group and creative level
-9. COGS → contribution margin → cost per delivered order
-10. Shopify, GA4, Clarity, SEMrush, AppsFlyer
+7. ✅ Step ceilings (15% on every Grow), pre-committed tests, automatic re-check
+   — `Scale Commitment` + `commitments.review()` on the daily schedule
+8. ⬜ Ad-group and creative level
+9. ⬜ COGS → contribution margin → cost per delivered order
+10. ⬜ Shopify, GA4, Clarity, SEMrush, AppsFlyer
+
+Also done since v2: Overview KPIs, supplier and product segments,
+media-buyer performance and activity, and the `Dormant` verdict — declared
+since the first build and never issued until now.
 
 ---
 

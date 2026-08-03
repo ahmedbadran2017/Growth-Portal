@@ -18,6 +18,9 @@
   "clicks",
   "impressions",
   "sessions",
+  "budget",
+  "budget_type",
+  "delivery_status",
   "extra"
  ],
  "fields": [
@@ -102,6 +105,24 @@
    "fieldname": "sessions",
    "fieldtype": "Float",
    "label": "Sessions"
+  },
+  {
+   "fieldname": "budget",
+   "fieldtype": "Currency",
+   "label": "Authorised Budget",
+   "description": "Daily budget in the account's own currency. Utilization, not the ratio, is what a scaling decision turns on."
+  },
+  {
+   "fieldname": "budget_type",
+   "fieldtype": "Data",
+   "label": "Budget Type",
+   "description": "daily | lifetime | shared | adset. 'adset' means the campaign holds no budget of its own."
+  },
+  {
+   "fieldname": "delivery_status",
+   "fieldtype": "Data",
+   "label": "Delivery Status",
+   "description": "The platform's own word for why it is or is not spending. LIMITED_BY_BUDGET at 95% and ELIGIBLE at 11% need opposite actions."
   },
   {
    "fieldname": "extra",

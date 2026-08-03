@@ -1,0 +1,219 @@
+{
+ "actions": [],
+ "autoname": "naming_series:SCALE-.YYYY.-.#####",
+ "creation": "2026-08-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "entity_type",
+  "entity_id",
+  "entity_label",
+  "platform",
+  "verdict",
+  "c1",
+  "status",
+  "committed_on",
+  "review_on",
+  "s1",
+  "metric",
+  "baseline_value",
+  "step_pct",
+  "c2",
+  "budget_before",
+  "budget_after",
+  "criterion",
+  "s2",
+  "result_value",
+  "delta_pct",
+  "c3",
+  "decided_on",
+  "finding",
+  "note",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Data",
+   "label": "Entity Type",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "entity_id",
+   "fieldtype": "Data",
+   "label": "Entity",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "entity_label",
+   "fieldtype": "Data",
+   "label": "Label"
+  },
+  {
+   "fieldname": "platform",
+   "fieldtype": "Data",
+   "label": "Platform"
+  },
+  {
+   "fieldname": "verdict",
+   "fieldtype": "Link",
+   "label": "Verdict",
+   "options": "Growth Verdict"
+  },
+  {
+   "fieldname": "c1",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nPassed\nFailed\nAbandoned",
+   "default": "Open",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "committed_on",
+   "fieldtype": "Date",
+   "label": "Committed On",
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_on",
+   "fieldtype": "Date",
+   "label": "Review On",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1,
+   "description": "Set before the money moves. TikTok's ceiling was found by scaling 104% in one step and reading the result two days later; three CLOSED days is the minimum here."
+  },
+  {
+   "fieldname": "s1",
+   "fieldtype": "Section Break",
+   "label": "The commitment"
+  },
+  {
+   "fieldname": "metric",
+   "fieldtype": "Data",
+   "label": "Metric",
+   "default": "roas"
+  },
+  {
+   "fieldname": "baseline_value",
+   "fieldtype": "Float",
+   "label": "Value Before",
+   "reqd": 1,
+   "precision": "4",
+   "description": "The number as it stood when the step was taken. Recorded now, because a baseline remembered afterwards is a baseline chosen to fit the outcome."
+  },
+  {
+   "fieldname": "step_pct",
+   "fieldtype": "Percent",
+   "label": "Step Size",
+   "description": "A 104% step quartered ROAS. The rule caps this at 15%."
+  },
+  {
+   "fieldname": "c2",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "budget_before",
+   "fieldtype": "Currency",
+   "label": "Budget Before"
+  },
+  {
+   "fieldname": "budget_after",
+   "fieldtype": "Currency",
+   "label": "Budget After"
+  },
+  {
+   "fieldname": "criterion",
+   "fieldtype": "Small Text",
+   "label": "Pass Criterion",
+   "reqd": 1,
+   "description": "Written before the result is known. Anything else is a rationalisation."
+  },
+  {
+   "fieldname": "s2",
+   "fieldtype": "Section Break",
+   "label": "The result"
+  },
+  {
+   "fieldname": "result_value",
+   "fieldtype": "Float",
+   "label": "Value After",
+   "precision": "4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delta_pct",
+   "fieldtype": "Percent",
+   "label": "Change",
+   "read_only": 1
+  },
+  {
+   "fieldname": "c3",
+   "fieldtype": "Column Break",
+   "label": ""
+  },
+  {
+   "fieldname": "decided_on",
+   "fieldtype": "Datetime",
+   "label": "Decided On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finding",
+   "fieldtype": "Link",
+   "label": "Finding",
+   "options": "Growth Finding",
+   "read_only": 1
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Data",
+   "label": "Series",
+   "hidden": 1,
+   "default": "SCALE-.YYYY.-.#####"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Growth Portal",
+ "name": "Scale Commitment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "Growth Portal Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Growth Portal Analyst",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "entity_label",
+ "track_changes": 1
+}
