@@ -157,6 +157,12 @@
                 :findings="findings"
                 :integrity="integrity"
                 :connections="connections"
+                :overview="overview"
+                :daily="daily"
+                :suppliers="suppliers"
+                :products="products"
+                :buyers="buyers"
+                :buyerActivity="buyerActivity"
                 :settings="settings"
                 :rules="rules"
                 :loading="loading"
@@ -205,6 +211,12 @@ const integrity = ref(null);
 const verdicts = ref([]);
 const findings = ref([]);
 const connections = ref([]);
+const overview = ref({});
+const daily = ref([]);
+const suppliers = ref({});
+const products = ref({});
+const buyers = ref({});
+const buyerActivity = ref({});
 const settings = ref({});
 const rules = ref([]);
 const loading = ref(true);
@@ -225,7 +237,10 @@ const groups = computed(() => [
   {
     title: "",
     items: [
+      { to: "/overview", label: "Overview", icon: "dashboard" },
       { to: "/verdicts", label: "Verdicts", icon: "gauge", count: verdicts.value.length },
+      { to: "/segments", label: "Suppliers & Products", short: "Segments", icon: "inbox" },
+      { to: "/buyers", label: "Media Buyers", short: "Buyers", icon: "users" },
       { to: "/findings", label: "Findings", short: "Findings", icon: "flag", count: findings.value.length },
       { to: "/ask", label: "Ask the analyst", short: "Ask", icon: "sparkles" },
     ],
@@ -259,15 +274,15 @@ const bannerText = computed(() => {
 async function load() {
   loading.value = true;
   try {
-    [integrity.value, verdicts.value, findings.value, connections.value, settings.value, rules.value] =
-      await Promise.all([
-        api.integrity(),
-        api.verdicts(),
-        api.findings(),
-        api.connections(),
-        api.settings(),
-        api.rules(),
-      ]);
+    [
+      integrity.value, verdicts.value, findings.value, connections.value,
+      settings.value, rules.value, overview.value, daily.value,
+      suppliers.value, products.value, buyers.value, buyerActivity.value,
+    ] = await Promise.all([
+      api.integrity(), api.verdicts(), api.findings(), api.connections(),
+      api.settings(), api.rules(), api.overview(), api.daily(),
+      api.suppliers(), api.products(), api.buyers(), api.buyerActivity(),
+    ]);
   } finally {
     loading.value = false;
   }

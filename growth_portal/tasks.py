@@ -28,6 +28,8 @@ SOURCES = {
 ANALYZERS = {
     "Product": "growth_portal.analyzers.product.ProductAnalyzer",
     "Campaign": "growth_portal.analyzers.campaign.CampaignAnalyzer",
+    "Supplier": "growth_portal.analyzers.supplier.SupplierAnalyzer",
+    "Media Buyer": "growth_portal.analyzers.media_buyer.MediaBuyerAnalyzer",
 }
 
 #: The judging window. Two weeks is the shortest span where this catalogue's

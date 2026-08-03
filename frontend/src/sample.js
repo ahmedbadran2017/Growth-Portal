@@ -80,6 +80,70 @@ export const SAMPLE = {
     },
   ],
 
+  overview: {
+    today: { orders: 284, revenue_mad: 58420, confirmed: 231, confirmation_pct: 81.3, ad_spend_try: 3066 },
+    month: {
+      orders: 8818, revenue_mad: 1821527, confirmed: 7131, confirmation_pct: 80.9,
+      resolved: 6402, delivered: 5229, delivery_pct: 81.7, in_transit: 2416,
+    },
+    spend: {
+      by_source: [], total_try: 0, total_mad: null,
+      try_to_mad_rate: null, sources_reporting: 0,
+    },
+    blended: { cost_per_order_try: null, cost_per_delivered_try: null,
+               note: "spend ÷ all orders, across every platform — not attributed" },
+    as_of: "2026-08-03 09:00:00",
+  },
+
+  daily: Array.from({ length: 30 }, (_, i) => ({
+    day: `2026-07-${String(i + 5).padStart(2, "0")}`,
+    orders: [268,291,305,277,312,298,264,281,309,322,287,275,299,318,301,
+             264,289,313,295,271,286,308,324,299,277,292,311,286,270,284][i],
+    revenue_mad: [55e3,60e3,63e3,57e3,64e3,61e3,54e3,58e3,64e3,66e3,59e3,57e3,
+                  62e3,66e3,62e3,54e3,60e3,65e3,61e3,56e3,59e3,63e3,67e3,62e3,
+                  57e3,60e3,64e3,59e3,56e3,58420][i],
+    confirmation_pct: [81.1,82.4,80.2,79.8,83.1,81.7,80.4,82.0,81.2,80.9,82.3,
+                       79.6,81.5,82.8,80.7,79.9,81.8,82.2,80.5,81.0,82.6,81.4,
+                       80.8,82.1,81.6,80.3,81.9,82.5,80.6,81.3][i],
+    ad_spend_try: 0,
+  })),
+
+  suppliers: {
+    window_days: 30, denominator_source: "erpnext",
+    share_basis: "revenue of the suppliers listed",
+    rows: [
+      { supplier: "JHome", orders: 3860, skus: 184, revenue_mad: 712062, share_pct: 41.6, confirmation_pct: 87.8, delivery_pct: 84.1, aov_mad: 184 },
+      { supplier: "MU Group", orders: 1897, skus: 532, revenue_mad: 333009, share_pct: 19.46, confirmation_pct: 75.3, delivery_pct: 79.2, aov_mad: 176 },
+      { supplier: "Justyol", orders: 1415, skus: 114, revenue_mad: 275419, share_pct: 16.09, confirmation_pct: 83.2, delivery_pct: 82.6, aov_mad: 195 },
+      { supplier: "Christelle Paris", orders: 678, skus: 47, revenue_mad: 84417, share_pct: 4.93, confirmation_pct: 80.7, delivery_pct: 80.1, aov_mad: 125 },
+      { supplier: "Beauty Mall", orders: 130, skus: 112, revenue_mad: 34263, share_pct: 2.0, confirmation_pct: 51.7, delivery_pct: 68.4, aov_mad: 264 },
+      { supplier: "Digitronics", orders: 25, skus: 13, revenue_mad: 34087, share_pct: 1.99, confirmation_pct: 16.0, delivery_pct: null, aov_mad: 1363 },
+      { supplier: "Kitchen Life", orders: 128, skus: 46, revenue_mad: 27505, share_pct: 1.61, confirmation_pct: 81.6, delivery_pct: 83.0, aov_mad: 215 },
+      { supplier: "TOMMYLIFE", orders: 110, skus: 136, revenue_mad: 24569, share_pct: 1.44, confirmation_pct: 70.3, delivery_pct: 74.9, aov_mad: 223 },
+      { supplier: "Town Team", orders: 114, skus: 112, revenue_mad: 24457, share_pct: 1.43, confirmation_pct: 77.1, delivery_pct: 78.8, aov_mad: 215 },
+      { supplier: "Maison good and well", orders: 51, skus: 33, revenue_mad: 21765, share_pct: 1.27, confirmation_pct: 69.6, delivery_pct: 72.0, aov_mad: 427 },
+    ],
+  },
+
+  products: {
+    window_days: 30, denominator_source: "erpnext", supplier: null,
+    rows: [
+      { item_code: "45862527402238", label: "Set de 12 bocaux carrés de conservation 1700 ml - STD", supplier: "JHome", orders: 782, qty: 812, revenue_mad: 184338, share_pct: 22.4, confirmation_pct: 88.1 },
+      { item_code: "45779757236478", label: "12 Li Standlı Kendinden Yapışkanlı Kapaklı Kaşıklı Baharatlık Takımı - Gray", supplier: "MU Group", orders: 969, qty: 1004, revenue_mad: 144829, share_pct: 17.6, confirmation_pct: 74.2 },
+      { item_code: "45820014362878", label: "Set de 4 boîtes de rangement carrées 6 L pour farine et légumineuses - STD", supplier: "JHome", orders: 642, qty: 668, revenue_mad: 144571, share_pct: 17.6, confirmation_pct: 86.4 },
+      { item_code: "45779760283902", label: "Set de 12 pots à épices anthracite 555 ml avec étiquettes - STD", supplier: "JHome", orders: 651, qty: 679, revenue_mad: 139985, share_pct: 17.0, confirmation_pct: 85.9 },
+      { item_code: "45779741180158", label: "Set de 12 contenants carrés 1205 ml noirs avec étiquettes - STD", supplier: "JHome", orders: 686, qty: 712, revenue_mad: 137175, share_pct: 16.7, confirmation_pct: 87.2 },
+      { item_code: "45779739738366", label: "Set de 2 bouteilles d'huile en verre 750 ml avec support en bois - STD", supplier: "Justyol", orders: 306, qty: 318, revenue_mad: 59782, share_pct: 7.3, confirmation_pct: 83.6 },
+      { item_code: "9135229141246", label: "Set de rangement cuisine - STD", supplier: "Justyol", orders: 178, qty: 184, revenue_mad: 21475, share_pct: 2.6, confirmation_pct: 80.4 },
+    ],
+  },
+
+  buyers: {
+    window_days: 30, unmapped_accounts: 0, rows: [],
+    note: "Platform-reported ROAS, per platform. Buyers run different accounts and products — this is not a ranking.",
+  },
+  buyerActivity: { window_days: 30, summary: [], recent: [], coverage: [] },
+
   alerts: [],
   agentRuns: [],
 

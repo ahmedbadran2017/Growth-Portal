@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
-  { path: "/", redirect: "/verdicts" },
+  { path: "/", redirect: "/overview" },
+  { path: "/overview", component: () => import("./pages/Overview.vue") },
+  { path: "/segments", component: () => import("./pages/Segments.vue") },
+  { path: "/buyers", component: () => import("./pages/Buyers.vue") },
   { path: "/verdicts", component: () => import("./pages/Verdicts.vue") },
   { path: "/findings", component: () => import("./pages/Findings.vue") },
   { path: "/integrity", component: () => import("./pages/Integrity.vue") },

@@ -1,125 +1,180 @@
-# Growth Portal — Audit
+# Growth Portal — Audit v2
 
-Against the vision as stated, not against what was built. Written 3 Aug 2026.
-
-> «بتقرا الداتا أول بأول من المصادر … تقسيمات على مستوى المنتجات والموردين
-> والأسواق والكريتيف … بيطلع المشاكل وأقوى حاجة والفرص والحاجات الواقعة …
-> بيقيس CRO & CVR & SEO … بيقيس الموبايل أب … تراكينج لشغل الميديا بايرز
-> وتحليل أداءهم والـ activity بتاعتهم»
+Not "what is missing from the code" this time. **What we actually do in a
+session to reach a scaling decision, step by step, and whether the portal can
+do it.** Written 3 Aug 2026, with live numbers pulled while writing.
 
 ---
 
-## 1. The load-bearing gap: there is no spend in this portal
+## Part 1 — The loop we actually run
 
-The stated north star is **cost per delivered order**. The portal cannot compute
-it, because seven of eight sources are stubs and ERPNext is the only one wired.
+Every real decision in these sessions followed the same seven steps. The portal
+covers two of them.
 
-| Source | State | What is blocked without it |
+| # | What we do | Portal |
 |---|---|---|
-| `erpnext` | ✅ complete | — |
-| `meta` | stub | spend, ROAS, creative performance, buyer activity |
-| `google_ads` | stub | spend, PMAX value, conversion actions |
-| `tiktok` | stub | spend, creative, changelog |
-| `shopify` | stub | sessions, ATC→purchase, checkout drop-off |
-| `clarity` | stub | CRO — rage clicks, dead clicks, scroll depth |
-| `semrush` | stub | SEO — positions, organic traffic |
-| `ga4` | stub | landing-page CVR, channel mix |
-| **AppsFlyer** | **not even a stub** | the entire mobile app measurement ask |
+| 1 | **Prove the measurement before reading it** — pixel quality, conversion-action config, is the tag even alive | ⚠️ partial |
+| 2 | **Read performance at the level the decision is made** — campaign, ad group, creative | ⚠️ campaign only |
+| 3 | **Check capacity, not just efficiency** — budget utilization, delivery status | ❌ **nothing** |
+| 4 | **Correlate with what changed** — deploys, budget edits, config edits | ⚠️ partial |
+| 5 | **Pick a step size, pre-commit the test and the revert criterion** | ❌ nothing |
+| 6 | **Execute, then verify the execution landed** | ❌ out of scope by design |
+| 7 | **Re-check after N closed days against the pre-committed criterion** | ❌ nothing |
 
-Everything else below is downstream of this. A verdict engine judging delivery
-rate is answering a real question, but it is one question out of the set.
-
-**Also missing as data, not as code:**
-
-- **COGS per `item_code`** — without it there is no contribution margin, only
-  revenue. "مين محتاج يتقتل" cannot be answered honestly on revenue alone.
-- **Control ratios**: only `items_per_order` is computed. The three that
-  actually catch a broken feed — `server_events_per_order`, `atc_to_purchase`,
-  `delivery_rate` — are declared in the agent's tool contract and never written.
-- **Timeline changes**: only ERPNext price moves. No deploys, no budget edits,
-  no Meta/Google/TikTok audit logs. This is the layer that made the 9 July
-  break diagnosable, and it is currently 5% built.
-- **Growth Entity** rows exist for products only. Six of seven segments are empty.
+Steps 3, 5 and 7 are the ones that decide whether money gets spent well. None
+of them exists.
 
 ---
 
-## 2. Missing screens
+## Part 2 — The biggest gap: the portal measures efficiency and is blind to capacity
 
-| Screen | Why it matters | State |
+Every scaling decision we made was about **headroom**, not about ratio. TikTok's
+was: *3 of 4 live campaigns are budget-capped at 93-95% utilization, total
+capacity only 1,228 TRY/day.* That sentence is the decision. The portal cannot
+produce it, because no adapter pulls a budget and `MetricRow` has no field for
+one.
+
+Here is the same question asked of Google, live, last 7 days:
+
+| Campaign | Spend/day | Budget/day | Used | Purchase ROAS |
+|---|---:|---:|---:|---:|
+| ES \| Branded Search | 222 | 2,000 | **11%** | **14.9** |
+| JHome \| PMAX \| Morocco | 646 | 8,800 | **7%** | **8.2** |
+| App Install \| Android | 1,598 | 15,000 | 11% | **1.36** |
+| PMAX \| Beauty & Perfumes | 218 | 730 | 30% | **0.55** |
+| PMAX \| Fashion & Accessories | 255 | 640 | 40% | **0.77** |
+| PMAX \| Rest of Catalog | 127 | 640 | 20% | **0.00** |
+| **Account** | **3,066** | **27,810** | **11%** | — |
+
+Two things fall out immediately, and neither is visible anywhere in the portal:
+
+**Google is delivery-limited, not budget-limited.** The account uses 11% of the
+budget already authorised. Raising a budget here does nothing at all — the
+constraint is demand and eligibility, not money. A `Grow` verdict on a Google
+campaign would recommend an action that cannot execute.
+
+**72% of Google spend sits at ROAS ≤ 1.36.** App Install burns 1,598/day for 13
+in-app purchases a week, and the three category PMAX campaigns burn ~600/day
+between them for 0.55, 0.77 and literally zero. Meanwhile the two that work —
+Branded Search at 14.9 and JHome PMAX at 8.2 — take 28% of the spend.
+
+The portal's campaign analyzer would rank these by money impact and reach the
+same list. What it would not tell you is that the fix is not "raise the good
+one" — that lever is already at 7% and pulling it changes nothing.
+
+**What this needs:** `budget`, `budget_type` and `delivery_status` on every
+metric row, and a capacity view that answers "where is there headroom" before
+any Grow verdict is allowed to say "scale this".
+
+---
+
+## Part 3 — Measurement checks we run every session, that the portal cannot
+
+The single most valuable thing done in these sessions was catching that a
+number was wrong before anyone acted on it. The portal has `Control Ratio` for
+exactly this, and computes **one** of the four that matter.
+
+| Check | How we do it now | Portal |
 |---|---|---|
-| **Connections** | Which sources are authorised, when each token was last good, a test button. Right now a dead token is invisible until a sync writes zero rows. | ❌ |
-| **Settings** | Thresholds (`gap_act`, `impact_floor`, `min_sample`…) are hard-coded in `analyzers/product.py`. Changing a rule means editing Python. Alert recipients live in `site_config.json`. | ❌ |
-| **Overview** | The portal opens straight onto a verdict list. No "what happened yesterday", no trend, no spend-vs-delivered. | ❌ |
-| **Entity detail** | `api/dashboard.py:entity()` already returns series + verdicts + changes. **No page consumes it.** Cards are not clickable. | ❌ API only |
-| **Timeline** | The change overlay has no view at all. | ❌ |
-| **Alerts** | `Growth Alert` doctype is written on every send. No inbox, no delivery status, no retry. | ❌ |
-| **Agent runs** | `Agent Run` records the full tool trace. Not visible anywhere. | ❌ |
-| Segments | Entity-type switcher. The API takes `entity_type`; the UI never sends it. | ❌ |
+| Server events per order | `ads_get_dataset_stats` ÷ ERPNext orders | ❌ declared in the agent's tools, never written |
+| Event match quality / `external_id` coverage | `ads_get_dataset_quality` | ❌ no adapter reads it |
+| Deduplication ratio | reported purchases ÷ actual orders | ❌ |
+| ATC → purchase | Shopify + pixel | ❌ no Shopify adapter |
+| Items per order | ERPNext | ✅ |
+| Is the tag alive at all | load the site, read the page | ❌ |
+| Conversion action config | `customer_conversion_goal` audit | ❌ |
 
-## 3. UI/UX gaps in what exists
+That last row is not theoretical. In the same 7 days, this account reports:
 
-1. **No feedback on action.** `Acknowledge / Actioned / Dismiss` silently remove
-   a card. Task Hub has `Toaster.vue`; this does not use it.
-2. **No date range.** The window is hard-coded to 28 days in `tasks.py`.
-3. **No charts.** Task Hub ships `TrendChart.vue`. Nothing here plots anything,
-   so a rate is a number with no history behind it.
-4. **No search.** Fine at 2 verdicts, useless at 200.
-5. **Cards are dead ends.** Nothing is clickable; there is no way to ask "why".
-6. **No error state.** If the API 500s, the page silently shows sample data.
-   The banner says "no connection", which would be a lie for a 500.
-7. **No skeletons** on Integrity / Findings / Ask — only Verdicts has them.
-8. **No agent progress.** `Ask` blocks on a spinner for what can be a 60-second
-   investigation, with no indication of which tool it is running.
-9. **Language.** Was Arabic-only. Being fixed in this pass → English default
-   with an AR toggle, matching Task Hub.
+- `JUSTYOL - Justyol (Android) First open` — 1,290 conversions
+- `com.justyol.retail (Android) first_open` — 761 conversions
 
-## 4. Missing features against the stated vision
+**Two separate first-open actions for what is one app install**, from the old
+and new app configurations, both live and both counted. Any "conversions"
+figure on that campaign is inflated by whichever one is redundant. This is the
+exact class of misconfiguration that took a full session to find in July, and
+nothing in the portal watches for it.
 
-| Ask | State |
+**What this needs:** a config-audit pass per platform that lists conversion
+actions, flags duplicates and dead ones, and writes a `Growth Finding` — and
+the three missing control ratios actually computed.
+
+---
+
+## Part 4 — The decision discipline is not encoded anywhere
+
+The most expensive lesson so far is written in memory, not in code:
+
+> TikTok's efficient ceiling for this account is ~750-900 TRY/day; doubling the
+> budget roughly quartered ROAS. Any future scaling must go in ~15% steps with
+> 3 closed days between, not 2×.
+
+That lesson was learned by scaling 104% in one step, watching ROAS fall 18.7 →
+5.8 → 4.7 over two days, and reverting. It cost real money to buy, and the
+portal would not stop anyone repeating it tomorrow.
+
+Missing, in order of what it would have saved:
+
+1. **Per-entity step ceiling.** A `Grow` verdict should carry a maximum step
+   (+15%), not an open-ended "candidate to scale".
+2. **A pre-committed test.** When a scale-up is actioned, the portal should
+   record the criterion and the date it will be judged on — before the money
+   moves, not after.
+3. **Automatic re-check.** On that date, compare and say plainly whether the
+   step passed or failed its own test.
+4. **Known ceilings per channel.** TikTok's ~900 TRY/day ceiling is a fact
+   about this account. It belongs in a rule, not in a memory file.
+
+One piece of this discipline *is* encoded, and it is the one that already
+prevented a loss: `guard.assert_pulled_performance` refuses to judge an entity
+whose performance was not pulled — the rule written after nearly disabling
+UGC-DPA-All-Campaign, the single best campaign in the TikTok account.
+
+---
+
+## Part 5 — Still missing as data
+
+Unchanged from v1 except where the three new adapters landed:
+
+| | State |
 |---|---|
-| Products segmentation | ✅ |
-| Suppliers | ❌ analyzer is a stub |
-| Source markets | ❌ stub |
-| Creative | ❌ stub |
-| Campaigns | ❌ stub |
-| Website CRO / CVR | ❌ no Clarity, no GA4, no Shopify |
-| SEO | ❌ no SEMrush |
-| Mobile app | ❌ no AppsFlyer source at all |
-| Media buyer performance | ❌ stub |
-| **Media buyer activity** | ❌ nothing — needs each platform's audit log |
-| Problems | ✅ Fix / Kill |
-| Strongest performers | ⚠️ Grow verdict exists, never fires without spend data |
-| Opportunities | ⚠️ same |
-| Dormant items | ❌ `Dormant` verdict is defined and never issued — `dormant_after_days` is declared on `Rule` and unused |
-| Alerts (email / WhatsApp) | ⚠️ dispatch written, never exercised |
-| Agent advises | ✅ |
-| Agent executes | ⛔ deliberately not yet |
+| Meta / Google / TikTok spend | ✅ adapters written, **never yet run** |
+| Budget & delivery status | ❌ — see Part 2 |
+| Ad-group / creative level | ❌ campaign only |
+| COGS per `item_code` | ❌ — no contribution margin, only revenue |
+| Cost per **delivered** order | ❌ needs COGS + order-level join |
+| Shopify / GA4 / Clarity / SEMrush | ❌ |
+| AppsFlyer | ❌ — and the dashboard there reads 42.37 against a real 1.88 |
+| Deploy events on the timeline | ❌ — only ad-platform change logs |
+| Period-over-period comparison | ❌ — the Nov–Jan seasonal peak is invisible |
+| `Dormant` verdict | ❌ defined, never issued; `dormant_after_days` unused |
 
 ---
 
-## 5. Order of work
+## Part 6 — Order of work
 
-**First — because everything else is downstream:**
-1. `sources/meta.py` + `sources/google_ads.py` + `sources/tiktok.py` → real spend
-2. COGS per `item_code` → contribution margin
-3. Timeline changes from each platform's audit log
+**Now, because it blocks every scaling decision:**
+1. `budget`, `budget_type`, `delivery_status` on `MetricRow` + all three adapters
+2. A capacity view: spend vs authorised budget vs delivery status per campaign
+3. Gate `Grow` on headroom — no "scale this" for an entity at 7% utilization
 
-**Second — the screens that make the data usable:**
-4. Connections · Settings · Overview
-5. Entity detail (API already exists) + timeline view
-6. Alerts inbox + agent run history
+**Next, because it is what a wrong number costs:**
+4. The three missing control ratios
+5. A per-platform config audit writing `Growth Finding`
+6. Deploy events on the timeline
 
-**Third:**
-7. Remaining analyzers, in the order the sources land
-8. Clarity / GA4 / SEMrush / AppsFlyer
-9. Toasts, charts, search, date range
+**Then:**
+7. Step ceilings, pre-committed tests, automatic re-check
+8. Ad-group and creative level
+9. COGS → contribution margin → cost per delivered order
+10. Shopify, GA4, Clarity, SEMrush, AppsFlyer
 
-## 6. What is genuinely done
+---
 
-- `engine/` — guard + verdict, both exercised against real ERPNext rows
-- `sources/erpnext.py` — 0 unmapped courier statuses across 1,000 real rows
-- `analyzers/product.py` — 79 products judged, one verdict at 8,827 MAD/month
-- `agent/` — 6 tools, read-only apart from writing findings
-- 10 doctypes, the Frappe shell, packaging, and the Task Hub design system
+## What the audit is not saying
 
-The foundation is sound. The coverage is roughly one-eighth of the vision.
+The engine, the guards and the ERPNext path are sound and were exercised against
+real rows. The three new adapters are written against verified API shapes. The
+gap is not quality — it is that the portal currently answers *"which entity is
+inefficient"* when the decisions we actually make need *"where is there room,
+what will I commit to, and how will I know if I was wrong"*.
