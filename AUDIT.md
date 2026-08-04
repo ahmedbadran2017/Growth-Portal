@@ -146,7 +146,7 @@ Unchanged from v1 except where the three new adapters landed:
 | Shopify | ✅ adapter written and verified against live data |
 | Clarity | ⚠️ adapter written, **not verified** — API errored on 3 queries (likely quota) |
 | GA4 / SEMrush | ❌ |
-| AppsFlyer | ❌ — and the dashboard there reads 42.37 against a real 1.88 |
+| AppsFlyer | ✅ adapter written and verified — **events and attribution only, cost excluded** |
 | Deploy events on the timeline | ✅ theme publishes, via the Shopify adapter |
 | Period-over-period comparison | ❌ — the Nov–Jan seasonal peak is invisible |
 | `Dormant` verdict | ❌ defined, never issued; `dormant_after_days` unused |
@@ -172,7 +172,19 @@ Unchanged from v1 except where the three new adapters landed:
    — `Scale Commitment` + `commitments.review()` on the daily schedule
 8. ⬜ Ad-group and creative level
 9. ⬜ COGS → contribution margin → cost per delivered order
-10. ⬜ GA4, SEMrush, AppsFlyer (Shopify done; Clarity written, unverified)
+10. ⬜ GA4, SEMrush (Shopify and AppsFlyer done; Clarity written, unverified)
+
+### Found while writing the AppsFlyer adapter
+AppsFlyer's campaign ids **are the platforms' own** — `23776204545` is the same
+id Google reports, `120246750200010686` is a Meta campaign id. So its rows key
+to `google:{id}` / `meta:{id}`, matching what the ad adapters already write, and
+app revenue joins to campaign spend with no mapping table. That join is the
+first thing in the stack that can say which campaign produced an app order.
+
+Its cost figures are excluded: $475.81 of reported Google spend for a window
+Google itself put at ~$47. Spend keeps coming from each platform's own API, so
+any app ROAS spans two systems — it lives in `api/app_channel.py`, labelled
+cross-source, and is deliberately not a verdict.
 
 ### Found while writing the Shopify adapter
 Shopify's own `conversion_rate` reads **0.0%** and

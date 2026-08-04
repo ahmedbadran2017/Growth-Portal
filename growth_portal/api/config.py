@@ -35,7 +35,8 @@ CATALOGUE = [
     {"source": "semrush", "label": "SEMrush", "timezone": "UTC",
      "maturity_hours": 168, "credential_key": "semrush_api_key", "covers": "Positions, organic traffic"},
     {"source": "appsflyer", "label": "AppsFlyer", "timezone": "UTC",
-     "maturity_hours": 48, "credential_key": "appsflyer_api_token", "covers": "Installs, in-app events, mobile ROAS"},
+     "maturity_hours": 168, "credential_key": "appsflyer_api_token",
+     "covers": "Installs, in-app purchases, per-campaign app attribution (events only — cost excluded)"},
 ]
 
 
