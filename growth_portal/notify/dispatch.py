@@ -23,7 +23,9 @@ def _conf(key, default=None):
 
 def _record(subject, body, channel, recipient, agent_run=None):
     return frappe.get_doc({
-        "doctype": "Growth Alert", "subject": subject[:180], "body": body,
+        "doctype": "Growth Alert", # Data field — 180 would have raised the same truncation error the
+        # first sync died on, just from the alert path instead.
+        "subject": subject[:140], "body": body,
         "channel": channel, "recipient": recipient, "status": "Queued",
         "agent_run": agent_run,
     }).insert(ignore_permissions=True)

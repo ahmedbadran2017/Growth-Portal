@@ -176,7 +176,7 @@ def _mk(verdict, r, rule, base, impact, ws, we, query_ref, headline, action):
         "doctype": "Growth Verdict",
         "entity_type": rule.entity_type,
         "entity_id": r.key,
-        "entity_label": (r.label or r.key)[:500],
+        "entity_label": (r.label or r.key)[:140],
         "metric": rule.metric,
         "verdict": verdict,
         "impact_mad": round(impact or 0),

@@ -104,10 +104,12 @@ def sync_source(key, days=3):
 
 
 def _upsert_entity(e, source):
-    # Bounded even though the field is Small Text. One oversized label must not
-    # be able to abort a sync of thousands of rows — the first real run died on
-    # a 154-character product name.
-    label = (e.label or e.key)[:500]
+    # 140, not 500. Frappe's Data fields cap at 140 and raise on save, so a
+    # longer value only survives once a migrate has widened the column. Writing
+    # within the narrower limit means the sync cannot be broken by a migration
+    # nobody ran — a 140-character label is still perfectly recognisable, and
+    # the full name is always one lookup away via entity_id.
+    label = (e.label or e.key)[:140]
     if frappe.db.exists("Growth Entity", {"entity_key": e.key}):
         frappe.db.set_value("Growth Entity", {"entity_key": e.key},
                             {"entity_label": label, "is_active": 1})
