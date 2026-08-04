@@ -45,7 +45,7 @@ class SupplierAnalyzer(Analyzer):
         rows = frappe.db.sql(
             """
             SELECT i.default_supplier AS supplier,
-                   COUNT(*) lines,
+                   COUNT(*) AS line_count,
                    COUNT(DISTINCT so.name) orders,
                    COUNT(DISTINCT soi.item_code) skus,
                    SUM(soi.amount) revenue,
@@ -67,18 +67,18 @@ class SupplierAnalyzer(Analyzer):
 
         out = []
         for r in rows:
-            if not r.lines:
+            if not r.line_count:
                 continue
             revenue = float(r.revenue or 0)
             out.append(engine.Row(
                 key=r.supplier,
                 label=r.supplier,
-                value=100.0 * (r.confirmed or 0) / r.lines,
+                value=100.0 * (r.confirmed or 0) / r.line_count,
                 weight=revenue,
-                sample=int(r.lines),
+                sample=int(r.line_count),
                 extra={
                     "numerator": int(r.confirmed or 0),
-                    "denominator": int(r.lines),
+                    "denominator": int(r.line_count),
                     "orders": r.orders,
                     "skus": r.skus,
                     "revenue_mad": round(revenue),
@@ -94,7 +94,7 @@ class SupplierAnalyzer(Analyzer):
                          ("Duplicate", r.duplicated or 0),
                          ("Customer", r.cancelled or 0)),
                         key=lambda x: x[1],
-                    )[0] if r.lines > (r.confirmed or 0) else None,
+                    )[0] if r.line_count > (r.confirmed or 0) else None,
                 },
             ))
         return out

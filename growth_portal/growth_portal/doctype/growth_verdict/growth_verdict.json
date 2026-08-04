@@ -59,8 +59,9 @@
   },
   {
    "fieldname": "entity_label",
-   "fieldtype": "Data",
-   "label": "Label"
+   "fieldtype": "Small Text",
+   "label": "Label",
+   "description": "Display text only — the stable id is entity_id. Small Text because product names here run past the 140-character Data limit."
   },
   {
    "fieldname": "metric",

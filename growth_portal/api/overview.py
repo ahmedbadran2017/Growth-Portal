@@ -189,7 +189,7 @@ def suppliers(days=30, limit=25):
                COUNT(DISTINCT soi.item_code) skus,
                SUM(soi.amount) revenue,
                SUM(so.custom_sales_status = %(c)s) confirmed_lines,
-               COUNT(*) lines,
+               COUNT(*) AS line_count,
                SUM(d.delivered) delivered,
                SUM(d.resolved) resolved
         FROM `tabSales Order Item` soi
@@ -228,7 +228,7 @@ def suppliers(days=30, limit=25):
             "skus": r.skus,
             "revenue_mad": round(float(r.revenue or 0)),
             "share_pct": round(100.0 * float(r.revenue or 0) / total, 2),
-            "confirmation_pct": round(100.0 * (r.confirmed_lines or 0) / r.lines, 1) if r.lines else None,
+            "confirmation_pct": round(100.0 * (r.confirmed_lines or 0) / r.line_count, 1) if r.line_count else None,
             "delivery_pct": round(100.0 * (r.delivered or 0) / r.resolved, 1) if r.resolved else None,
             "aov_mad": round(float(r.revenue or 0) / r.orders) if r.orders else None,
         })
@@ -250,7 +250,7 @@ def products(days=30, limit=25, supplier=None):
                SUM(soi.qty) qty,
                SUM(soi.amount) revenue,
                SUM(so.custom_sales_status = %(c)s) confirmed_lines,
-               COUNT(*) lines
+               COUNT(*) AS line_count
         FROM `tabSales Order Item` soi
         JOIN `tabSales Order` so ON so.name = soi.parent
         JOIN `tabItem` i ON i.name = soi.item_code
@@ -274,7 +274,7 @@ def products(days=30, limit=25, supplier=None):
             "qty": float(r.qty or 0),
             "revenue_mad": round(float(r.revenue or 0)),
             "share_pct": round(100.0 * float(r.revenue or 0) / total, 2),
-            "confirmation_pct": round(100.0 * (r.confirmed_lines or 0) / r.lines, 1) if r.lines else None,
+            "confirmation_pct": round(100.0 * (r.confirmed_lines or 0) / r.line_count, 1) if r.line_count else None,
         } for r in rows],
         "window_days": days,
         "supplier": supplier,

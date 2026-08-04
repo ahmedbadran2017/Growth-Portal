@@ -155,7 +155,7 @@ def write_finding(title: str, severity: str, body: str, evidence_json: str,
         return json.dumps({"rejected": str(e)}, ensure_ascii=False)
 
     doc = frappe.get_doc({
-        "doctype": "Growth Finding", "title": title[:180], "severity": severity,
+        "doctype": "Growth Finding", "title": title[:140], "severity": severity,
         "body": body, "evidence": evidence_json,
         "entity_type": entity_type or None, "entity_id": entity_id or None,
         "status": "Open",

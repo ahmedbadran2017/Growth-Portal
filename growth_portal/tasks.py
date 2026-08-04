@@ -96,12 +96,16 @@ def sync_source(key, days=3):
 
 
 def _upsert_entity(e, source):
+    # Bounded even though the field is Small Text. One oversized label must not
+    # be able to abort a sync of thousands of rows — the first real run died on
+    # a 154-character product name.
+    label = (e.label or e.key)[:500]
     if frappe.db.exists("Growth Entity", {"entity_key": e.key}):
         frappe.db.set_value("Growth Entity", {"entity_key": e.key},
-                            {"entity_label": e.label, "is_active": 1})
+                            {"entity_label": label, "is_active": 1})
         return
     frappe.get_doc({"doctype": "Growth Entity", "entity_key": e.key,
-                    "entity_type": e.entity_type, "entity_label": e.label,
+                    "entity_type": e.entity_type, "entity_label": label,
                     "parent_key": e.parent_key, "source": source,
                     "is_active": 1}).insert(ignore_permissions=True)
 
@@ -214,7 +218,7 @@ def control_ratios():
         as_dict=True,
     )
     items = frappe.db.sql(
-        """SELECT DATE(so.creation) AS day, SUM(soi.qty) items, COUNT(DISTINCT so.name) orders
+        """SELECT DATE(so.creation) AS day, SUM(soi.qty) AS qty_total, COUNT(DISTINCT so.name) AS orders
            FROM `tabSales Order` so
            JOIN `tabSales Order Item` soi ON soi.parent = so.name
            WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
@@ -222,7 +226,9 @@ def control_ratios():
         as_dict=True,
     )
 
-    ipo = [(r.day, r.items or 0, r.orders) for r in items if r.orders]
+    # NOT `items` — frappe._dict resolves r.items to dict.items and the
+    # arithmetic silently receives a bound method.
+    ipo = [(r.day, r.qty_total or 0, r.orders) for r in items if r.orders]
     if len(ipo) >= 14:
         base = sum(i / o for _, i, o in ipo) / len(ipo)
         for day, i, o in ipo:

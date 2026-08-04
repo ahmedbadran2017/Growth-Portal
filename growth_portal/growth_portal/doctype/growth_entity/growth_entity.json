@@ -34,9 +34,10 @@
   },
   {
    "fieldname": "entity_label",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Label",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "description": "Display text only — the stable id is entity_id. Small Text because product names here run past the 140-character Data limit."
   },
   {
    "fieldname": "parent_key",
