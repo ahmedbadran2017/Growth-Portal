@@ -29,12 +29,35 @@ def _roles():
 
 @frappe.whitelist()
 def backfill(days=90):
-    """Pull history once, then judge. Run manually after install."""
+    """Pull history once, then judge. Run manually after install.
+
+    A source that is not configured yet must not abort the whole backfill.
+    On a fresh install only ERPNext has credentials, and the first run has to
+    survive that — an install that dies on the first unconfigured platform
+    leaves the portal with no baseline at all, which is the one state where it
+    reports nothing and looks broken.
+    """
     from growth_portal import tasks
 
-    out = {}
+    out = {"sources": {}, "skipped": {}}
     for key in tasks.SOURCES:
-        out[key] = tasks.sync_source(key, days=int(days))
-    out["ratios"] = tasks.control_ratios()
-    out["verdicts"] = tasks.judge_all()
+        try:
+            out["sources"][key] = tasks.sync_source(key, days=int(days))
+        except Exception as e:
+            # Recorded, not swallowed: Source Sync already has the failure row,
+            # and the Connections screen will show this source as down.
+            out["skipped"][key] = str(e)[:300]
+            frappe.log_error(frappe.get_traceback(), f"Growth Portal: backfill {key}")
+
+    try:
+        out["ratios"] = tasks.control_ratios()
+    except Exception as e:
+        out["ratios"] = f"failed: {str(e)[:200]}"
+
+    try:
+        out["verdicts"] = tasks.judge_all()
+    except Exception as e:
+        out["verdicts"] = f"failed: {str(e)[:200]}"
+
+    frappe.db.commit()
     return out

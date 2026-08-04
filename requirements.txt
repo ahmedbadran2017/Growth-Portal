@@ -1,3 +1,6 @@
-frappe
+# NOT frappe. A Frappe app declares its dependency on the framework through
+# `required_apps` in hooks.py — listing it here makes bench pip-install an
+# unrelated PyPI package called "frappe" and breaks the install.
 anthropic>=0.75.0
+google-ads>=25.0.0
 requests
