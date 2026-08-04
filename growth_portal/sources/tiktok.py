@@ -5,10 +5,15 @@ same closed days nine hours apart moved 30 Jul from 6 to 7 payments and 31 Jul
 from 2 to 5 — so a TikTok day read in the morning is understated by a wide
 margin, and `maturity_hours` is set to 48 rather than the usual 24.
 
-Revenue is derived, not read: the report returns `complete_payment` as a count
-and `total_complete_payment_rate` as a ROAS. Which path produced the number is
-recorded on the row, because a silently-derived figure that nobody can trace is
-the thing this portal exists to prevent.
+One field name here is a trap. `total_complete_payment_rate` is not a rate and
+not a ROAS — it is the total purchase value. Verified against the live account
+on 3 Aug 2026: 7 payments at 1,601.40 each returned 11,209.83 in that field on
+914.09 of spend. Treating it as a ROAS and multiplying by spend reports ten
+million instead of eleven thousand.
+
+Which path produced the revenue figure is recorded on every row, because a
+silently-derived number nobody can trace is the thing this portal exists to
+prevent.
 """
 
 from __future__ import annotations
@@ -134,14 +139,21 @@ class TikTokSource(SourceAdapter):
                 spend = float(met.get("spend") or 0)
                 payments = float(met.get("complete_payment") or 0)
                 per_payment = float(met.get("value_per_complete_payment") or 0)
-                roas = float(met.get("total_complete_payment_rate") or 0)
 
-                # Prefer count × value. Fall back to spend × ROAS, and say which
-                # one was used rather than leaving the number unattributable.
-                if payments and per_payment:
+                # `total_complete_payment_rate` is TikTok's name for the total
+                # purchase VALUE, not a rate and not a ROAS. Verified against
+                # the live account on 3 Aug 2026: 7 payments × 1,601.40 =
+                # 11,209.83, which is exactly what the field returned on 914.09
+                # of spend. Reading it as a ROAS and multiplying by spend would
+                # have reported 10.2 million.
+                total_value = float(met.get("total_complete_payment_rate") or 0)
+
+                # Prefer the platform's own total. Fall back to count × value,
+                # and record which path produced the number.
+                if total_value:
+                    revenue, basis = total_value, "platform_total"
+                elif payments and per_payment:
                     revenue, basis = payments * per_payment, "count_x_value"
-                elif spend and roas:
-                    revenue, basis = spend * roas, "spend_x_roas"
                 else:
                     revenue, basis = 0.0, "none"
 
@@ -162,7 +174,8 @@ class TikTokSource(SourceAdapter):
                         "advertiser_id": adv,
                         "currency": "TRY",
                         "revenue_basis": basis,
-                        "reported_roas": roas,
+                        # Derived here, not read: there is no ROAS field.
+                        "reported_roas": round(total_value / spend, 2) if spend else None,
                         "conversions_all": float(met.get("conversion") or 0),
                     },
                 ))
