@@ -14,6 +14,8 @@ from datetime import date, timedelta
 
 import frappe
 
+from growth_portal.engine import guard
+
 from growth_portal.notify import dispatch
 from growth_portal.sources.erpnext import TRACKING
 
@@ -77,7 +79,7 @@ def sync_source(key, days=3):
     """
     src = _load(SOURCES[key])
     t0 = time.time()
-    date_to = date.today() + timedelta(days=1)
+    date_to = guard.site_today() + timedelta(days=1)
     date_from = date_to - timedelta(days=days + 1)
     written = 0
     try:
@@ -121,7 +123,10 @@ def _upsert_entity(e, source):
 
 
 def _maturity(day, hours):
-    age = (date.today() - day).days * 24
+    # Site clock, not the container's. Reading UTC here makes a row look
+    # a day older than it is — the direction that lets an unfinished day
+    # pass `assert_mature`.
+    age = (guard.site_today() - day).days * 24
     if age < hours:
         return "Provisional"
     return "Maturing" if age < hours * 2 else "Final"
@@ -164,7 +169,7 @@ def judge_all():
     """Run every analyzer over the standard window."""
     # Yesterday, not today. Both bounds are inclusive, and the guard refuses a
     # window whose last day is still maturing — today never qualifies.
-    end = date.today() - timedelta(days=1)
+    end = guard.site_today() - timedelta(days=1)
     start = end - timedelta(days=WINDOW_DAYS - 1)
     out = {}
     for entity_type, path in ANALYZERS.items():
@@ -223,17 +228,17 @@ def control_ratios():
                   (SELECT SUM(soi.qty) FROM `tabSales Order Item` soi
                     WHERE soi.parent = so.name) AS x
            FROM `tabSales Order` so
-           WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+           WHERE so.creation >= DATE_SUB(%(gp_today)s, INTERVAL 60 DAY)
            GROUP BY DATE(so.creation) ORDER BY day""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     items = frappe.db.sql(
         """SELECT DATE(so.creation) AS day, SUM(soi.qty) AS qty_total, COUNT(DISTINCT so.name) AS orders
            FROM `tabSales Order` so
            JOIN `tabSales Order Item` soi ON soi.parent = so.name
-           WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+           WHERE so.creation >= DATE_SUB(%(gp_today)s, INTERVAL 60 DAY)
            GROUP BY DATE(so.creation) ORDER BY day""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
 
     # NOT `items` — frappe._dict resolves r.items to dict.items and the
@@ -264,14 +269,14 @@ def control_ratios():
                                           ORDER BY x.creation DESC, x.modified DESC) rn
                 FROM `{TRACKING}` x
                 JOIN `tabSales Order` so ON so.name = x.sales_order
-                WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+                WHERE so.creation >= DATE_SUB(%(gp_today)s, INTERVAL 60 DAY)
             ) t
             WHERE t.rn = 1
               AND t.status_name NOT LIKE 'Hub%%'
               AND t.status_name NOT LIKE 'En Attente%%'
               AND t.status_name NOT LIKE 'Mise En Distribution%%'
             GROUP BY DATE(t.d) ORDER BY day""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     dl = [(r.day, r.delivered or 0, r.resolved) for r in deliv if r.resolved]
     if len(dl) >= 14:
@@ -284,9 +289,9 @@ def control_ratios():
     # a platform numerator over an ERPNext denominator.
     atc = frappe.db.sql(
         """SELECT day, source, extra FROM `tabEntity Metric`
-           WHERE entity_type='Campaign' AND day >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+           WHERE entity_type='Campaign' AND day >= DATE_SUB(%(gp_today)s, INTERVAL 60 DAY)
              AND extra LIKE '%%add_to_cart%%'""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     per_day = {}
     for r in atc:
@@ -299,9 +304,9 @@ def control_ratios():
     purch = frappe.db.sql(
         """SELECT day, SUM(orders) o FROM `tabEntity Metric`
            WHERE entity_type='Campaign' AND source='meta'
-             AND day >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+             AND day >= DATE_SUB(%(gp_today)s, INTERVAL 60 DAY)
            GROUP BY day""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     for r in purch:
         if r.day in per_day:

@@ -19,6 +19,8 @@ courier's last word in Shipment Tracking. They are never multiplied together.
 
 import frappe
 
+from growth_portal.engine import guard
+
 from growth_portal.sources.erpnext import TRACKING
 
 #: The call-centre outcome. Verified against July 2026: 7,131 Confirmed out of
@@ -42,16 +44,16 @@ def kpis(days=30):
         """SELECT COUNT(*) orders, COALESCE(SUM(grand_total),0) revenue,
                   SUM(custom_sales_status=%(c)s) confirmed
            FROM `tabSales Order`
-           WHERE DATE(creation) = CURDATE()""",
-        {"c": CONFIRMED}, as_dict=True,
+           WHERE DATE(creation) = %(gp_today)s""",
+        {**guard.clock(), "c": CONFIRMED}, as_dict=True,
     )[0]
 
     month = frappe.db.sql(
         """SELECT COUNT(*) orders, COALESCE(SUM(grand_total),0) revenue,
                   SUM(custom_sales_status=%(c)s) confirmed
            FROM `tabSales Order`
-           WHERE creation >= DATE_FORMAT(CURDATE(), '%%Y-%%m-01')""",
-        {"c": CONFIRMED}, as_dict=True,
+           WHERE creation >= DATE_FORMAT(%(gp_today)s, '%%Y-%%m-01')""",
+        {**guard.clock(), "c": CONFIRMED}, as_dict=True,
     )[0]
 
     # Delivery is the courier's last word per order, not a status on the order.
@@ -66,7 +68,7 @@ def kpis(days=30):
                                           ORDER BY creation DESC, modified DESC) rn
                 FROM `{TRACKING}`
                 WHERE sales_order IS NOT NULL
-                  AND creation >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                  AND creation >= DATE_FORMAT(%(gp_today)s, '%Y-%m-01')
             ) t
             WHERE t.rn = 1
               AND t.status_name NOT LIKE 'Hub%%'
@@ -75,21 +77,21 @@ def kpis(days=30):
               AND t.status_name NOT LIKE 'Confirm%%RDV%%'
               AND t.status_name NOT LIKE 'Exp%%di%% vers hub%%'
               AND t.status_name NOT LIKE 'D%%pos%% au hub%%'""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )[0]
 
     spend = frappe.db.sql(
         """SELECT source, COALESCE(SUM(spend),0) spend, COALESCE(SUM(revenue),0) revenue
            FROM `tabEntity Metric`
            WHERE entity_type='Campaign'
-             AND day >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+             AND day >= DATE_FORMAT(%(gp_today)s, '%Y-%m-01')
            GROUP BY source""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     spend_today = frappe.db.sql(
         """SELECT COALESCE(SUM(spend),0) spend FROM `tabEntity Metric`
-           WHERE entity_type='Campaign' AND day = CURDATE()""",
-    )[0][0]
+           WHERE entity_type='Campaign' AND day = %(gp_today)s""",
+    guard.clock(), )[0][0]
 
     try_total = sum(float(s.spend or 0) for s in spend)
     rate = _rate()
@@ -153,15 +155,15 @@ def daily(days=30):
                   COALESCE(SUM(grand_total),0) revenue,
                   SUM(custom_sales_status=%(c)s) confirmed
            FROM `tabSales Order`
-           WHERE creation >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+           WHERE creation >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
            GROUP BY DATE(creation) ORDER BY day""",
-        {"c": CONFIRMED, "d": days}, as_dict=True,
+        {**guard.clock(), "c": CONFIRMED, "d": days}, as_dict=True,
     )
     spend = frappe.db.sql(
         """SELECT day, COALESCE(SUM(spend),0) spend FROM `tabEntity Metric`
-           WHERE entity_type='Campaign' AND day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+           WHERE entity_type='Campaign' AND day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
            GROUP BY day ORDER BY day""",
-        {"d": days}, as_dict=True,
+        {**guard.clock(), "d": days}, as_dict=True,
     )
     by_day = {str(s.day): float(s.spend or 0) for s in spend}
     return [
@@ -211,13 +213,13 @@ def suppliers(days=30, limit=25):
               AND t.status_name NOT LIKE 'Mise En Distribution%%'
             GROUP BY t.sales_order
         ) d ON d.sales_order = so.name
-        WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+        WHERE so.creation >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
           AND i.default_supplier IS NOT NULL AND i.default_supplier != ''
         GROUP BY i.default_supplier
         ORDER BY revenue DESC
         LIMIT %(l)s
         """,
-        {"c": CONFIRMED, "d": days, "l": limit}, as_dict=True,
+        {**guard.clock(), "c": CONFIRMED, "d": days, "l": limit}, as_dict=True,
     )
     total = sum(float(r.revenue or 0) for r in rows) or 1
     out = []
@@ -254,12 +256,12 @@ def products(days=30, limit=25, supplier=None):
         FROM `tabSales Order Item` soi
         JOIN `tabSales Order` so ON so.name = soi.parent
         JOIN `tabItem` i ON i.name = soi.item_code
-        WHERE so.creation >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY) {cond}
+        WHERE so.creation >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY) {cond}
         GROUP BY soi.item_code
         ORDER BY revenue DESC
         LIMIT %(l)s
         """,
-        {"c": CONFIRMED, "d": days, "l": limit, "s": supplier}, as_dict=True,
+        {**guard.clock(), "c": CONFIRMED, "d": days, "l": limit, "s": supplier}, as_dict=True,
     )
     total = sum(float(r.revenue or 0) for r in rows) or 1
     return {

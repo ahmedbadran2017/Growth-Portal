@@ -20,6 +20,8 @@ than leaving the reader to assume otherwise.
 
 import frappe
 
+from growth_portal.engine import guard
+
 #: account id -> buyer. Configured in site_config.json under
 #: `media_buyer_accounts`; the shape is {"act_123": "name@justyol.com"}.
 #: Nothing is inferred — an unmapped account reports as Unassigned rather than
@@ -51,9 +53,9 @@ def performance(days=30):
                   SUM(m.orders) orders, SUM(m.impressions) impressions
            FROM `tabEntity Metric` m
            WHERE m.entity_type='Campaign'
-             AND m.day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+             AND m.day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
            GROUP BY m.source, m.entity_id""",
-        {"d": days}, as_dict=True,
+        {**guard.clock(), "d": days}, as_dict=True,
     )
 
     agg = {}
@@ -118,10 +120,10 @@ def activity(days=30, buyer=None):
         f"""SELECT actor, surface, entity_type, field_changed, entity_id,
                    day, before_value, after_value, source
             FROM `tabTimeline Change`
-            WHERE day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY) {cond}
+            WHERE day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY) {cond}
             ORDER BY day DESC
             LIMIT 2000""",
-        {"d": days, "b": buyer}, as_dict=True,
+        {**guard.clock(), "d": days, "b": buyer}, as_dict=True,
     )
 
     per = {}
@@ -174,9 +176,9 @@ def _coverage():
     rows = frappe.db.sql(
         """SELECT source, COUNT(*) n, SUM(surface='unknown') unknown_surface
            FROM `tabTimeline Change`
-           WHERE day >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+           WHERE day >= DATE_SUB(%(gp_today)s, INTERVAL 30 DAY)
            GROUP BY source""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     return [{"source": r.source, "changes": r.n,
              "surface_unknown": int(r.unknown_surface or 0)} for r in rows]

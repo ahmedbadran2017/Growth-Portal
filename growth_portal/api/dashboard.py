@@ -11,6 +11,8 @@ from datetime import date, timedelta
 
 import frappe
 
+from growth_portal.engine import guard
+
 
 @frappe.whitelist()
 def integrity():
@@ -22,16 +24,16 @@ def integrity():
     syncs = frappe.db.sql(
         """SELECT source, run_day, ok, rows_written, duration_ms
            FROM `tabSource Sync`
-           WHERE run_day >= DATE_SUB(CURDATE(), INTERVAL 2 DAY)
+           WHERE run_day >= DATE_SUB(%(gp_today)s, INTERVAL 2 DAY)
            ORDER BY run_day DESC, source""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     anomalies = frappe.db.sql(
         """SELECT metric, day, ratio, baseline, deviation_pct
            FROM `tabControl Ratio`
-           WHERE is_anomaly = 1 AND day >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
+           WHERE is_anomaly = 1 AND day >= DATE_SUB(%(gp_today)s, INTERVAL 14 DAY)
            ORDER BY day DESC LIMIT 20""",
-        as_dict=True,
+        guard.clock(), as_dict=True,
     )
     stale = frappe.db.sql(
         """SELECT source, MAX(day) AS latest FROM `tabEntity Metric`
@@ -80,7 +82,7 @@ def entity(entity_id, days=60):
     The changes are the point. A rate that moved is a question; a rate that
     moved the same week the price did is an answer.
     """
-    start = date.today() - timedelta(days=int(days))
+    start = guard.site_today() - timedelta(days=int(days))
     return {
         "entity": frappe.db.get_value(
             "Growth Entity", {"entity_key": entity_id},

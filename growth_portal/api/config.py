@@ -10,6 +10,8 @@ portal that can leak one.
 
 import frappe
 
+from growth_portal.engine import guard
+
 from growth_portal import tasks
 
 #: Every source the portal knows about, whether or not it is wired yet. The
@@ -49,9 +51,9 @@ def connections():
         for r in frappe.db.sql(
             """SELECT source, run_day, ok, rows_written, duration_ms
                FROM `tabSource Sync`
-               WHERE run_day >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+               WHERE run_day >= DATE_SUB(%(gp_today)s, INTERVAL 7 DAY)
                ORDER BY run_day DESC""",
-            as_dict=True,
+            guard.clock(), as_dict=True,
         )
     }
     overrides = {

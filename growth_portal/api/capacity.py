@@ -15,6 +15,8 @@ account would have been unexecutable.
 
 import frappe
 
+from growth_portal.engine import guard
+
 #: Above this, the budget is the binding constraint.
 CAPPED = 85.0
 #: Below this, something other than budget is stopping it.
@@ -42,12 +44,12 @@ def campaigns(days=14, source=None):
         FROM `tabEntity Metric` m
         LEFT JOIN `tabGrowth Entity` e ON e.entity_key = m.entity_id
         WHERE m.entity_type='Campaign'
-          AND m.day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY) {cond}
+          AND m.day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY) {cond}
         GROUP BY m.entity_id, m.source
         HAVING spend > 0
         ORDER BY spend DESC
         """,
-        {"d": days, "s": source}, as_dict=True,
+        {**guard.clock(), "d": days, "s": source}, as_dict=True,
     )
 
     out = []

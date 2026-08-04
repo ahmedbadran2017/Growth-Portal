@@ -17,6 +17,8 @@ from datetime import date
 
 import frappe
 
+from growth_portal.engine import guard
+
 from growth_portal.sources.base import ChangeRow, EntityRow, MetricRow, SourceAdapter
 
 # `tabShipment Tracking` is a status *history* — roughly 3.6 rows per order — so
@@ -107,10 +109,10 @@ class ERPNextSource(SourceAdapter):
             SELECT soi.item_code AS `key`,
                    SUBSTRING_INDEX(GROUP_CONCAT(soi.item_name ORDER BY soi.creation DESC), ',', 1) AS label
             FROM `tabSales Order Item` soi
-            WHERE soi.creation >= DATE_SUB(CURDATE(), INTERVAL 120 DAY)
+            WHERE soi.creation >= DATE_SUB(%(gp_today)s, INTERVAL 120 DAY)
             GROUP BY soi.item_code
             """,
-            as_dict=True,
+            guard.clock(), as_dict=True,
         )
         # Keyed on item_code, labelled with the *latest* name. The name on a
         # Sales Order Item is a snapshot taken at order time, and this catalogue
@@ -207,7 +209,12 @@ class ERPNextSource(SourceAdapter):
         return out
 
     def health(self):
+        # The site's clock, not the database's. `creation` is written in the
+        # site timezone and MySQL here runs UTC — the three-hour gap made this
+        # probe read a 21-hour window and call it 24.
         n = frappe.db.sql(
-            f"SELECT COUNT(*) FROM `{TRACKING}` WHERE creation >= DATE_SUB(NOW(), INTERVAL 24 HOUR)"
+            f"SELECT COUNT(*) FROM `{TRACKING}` "
+            "WHERE creation >= DATE_SUB(%(gp_now)s, INTERVAL 24 HOUR)",
+            guard.clock(),
         )[0][0]
         return {"source": self.name, "ok": n > 0, "tracking_rows_24h": n}

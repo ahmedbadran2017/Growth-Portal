@@ -59,9 +59,39 @@ def assert_same_source(numerator_source, denominator_source):
         )
 
 
+def site_today():
+    """Today on the SITE's clock, never the database's.
+
+    Verified on this bench: MySQL `NOW()` returns UTC — it equals
+    `UTC_TIMESTAMP()` — while Frappe writes `creation` in the site timezone,
+    Europe/Istanbul. Three hours apart. So `WHERE DATE(creation) = CURDATE()`
+    silently files every order placed between 00:00 and 03:00 local under the
+    previous day, and `_maturity` reads those rows as a day older than they are
+    — which is the direction that lets an unfinished day be judged.
+
+    Frappe's own clock is the single authority here: it follows System Settings
+    and handles DST, which a hard-coded offset would not.
+    """
+    return frappe.utils.getdate(frappe.utils.nowdate())
+
+
+def site_now():
+    """Now on the site's clock. See `site_today`."""
+    return frappe.utils.now_datetime()
+
+
+def clock():
+    """Bind the site's clock into a query's parameters.
+
+    Merge into every params dict whose SQL references %(gp_today)s or
+    %(gp_now)s: `frappe.db.sql(q, {**guard.clock(), "d": days})`.
+    """
+    return {"gp_today": site_today(), "gp_now": site_now()}
+
+
 def assert_mature(source, window_end, now=None):
     """Refuse to judge a window whose numbers are still moving."""
-    now = now or frappe.utils.now_datetime()
+    now = now or site_now()
     hours = MATURITY_HOURS.get(source, 24)
     closed_at = frappe.utils.get_datetime(f"{window_end} 23:59:59")
     if (now - closed_at).total_seconds() < hours * 3600:

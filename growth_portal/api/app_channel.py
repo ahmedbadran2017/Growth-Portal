@@ -16,6 +16,8 @@ $475.81 of Google spend for a window Google itself put at about $47.
 
 import frappe
 
+from growth_portal.engine import guard
+
 #: AppsFlyer reports USD; ad accounts report TRY. Nothing is converted unless a
 #: rate is configured, and the rate ships with the response.
 def _rate():
@@ -35,9 +37,9 @@ def campaigns(days=30):
            FROM `tabEntity Metric` m
            LEFT JOIN `tabGrowth Entity` e ON e.entity_key = m.entity_id
            WHERE m.source = 'appsflyer'
-             AND m.day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+             AND m.day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
            GROUP BY m.entity_id""",
-        {"d": days}, as_dict=True,
+        {**guard.clock(), "d": days}, as_dict=True,
     )
 
     # Spend from the platforms' own APIs, keyed identically — the AppsFlyer
@@ -50,9 +52,9 @@ def campaigns(days=30):
                       SUM(revenue) platform_revenue
                FROM `tabEntity Metric`
                WHERE entity_type='Campaign' AND source != 'appsflyer'
-                 AND day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+                 AND day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
                GROUP BY entity_id, source""",
-            {"d": days}, as_dict=True,
+            {**guard.clock(), "d": days}, as_dict=True,
         )
     }
 
@@ -139,9 +141,9 @@ def sources(days=30):
         """SELECT m.extra, SUM(m.orders) purchases, SUM(m.revenue) revenue_usd
            FROM `tabEntity Metric` m
            WHERE m.source='appsflyer'
-             AND m.day >= DATE_SUB(CURDATE(), INTERVAL %(d)s DAY)
+             AND m.day >= DATE_SUB(%(gp_today)s, INTERVAL %(d)s DAY)
            GROUP BY m.entity_id""",
-        {"d": days}, as_dict=True,
+        {**guard.clock(), "d": days}, as_dict=True,
     )
     agg = {}
     for r in rows:
