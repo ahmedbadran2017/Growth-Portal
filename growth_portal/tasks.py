@@ -50,14 +50,22 @@ def _load(path):
 def _record_sync(source, ok, rows, ms, detail):
     day = frappe.utils.today()
     name = f"{source}::{day}"
-    doc = {"doctype": "Source Sync", "source": source, "run_day": day,
-           "ok": 1 if ok else 0, "rows_written": rows, "duration_ms": ms,
-           "detail": json.dumps(detail, ensure_ascii=False, default=str)[:5000]}
-    if frappe.db.exists("Source Sync", name):
-        frappe.db.set_value("Source Sync", name, doc)
-    else:
-        frappe.get_doc(doc).insert(ignore_permissions=True)
-    frappe.db.commit()
+    # `doctype` is not a column. Passing it to set_value builds
+    # `UPDATE ... SET doctype=...` and fails — which only ever happens on the
+    # second run of a given day, when the row already exists.
+    fields = {"source": source, "run_day": day,
+              "ok": 1 if ok else 0, "rows_written": rows, "duration_ms": ms,
+              "detail": json.dumps(detail, ensure_ascii=False, default=str)[:5000]}
+    try:
+        if frappe.db.exists("Source Sync", name):
+            frappe.db.set_value("Source Sync", name, fields)
+        else:
+            frappe.get_doc(dict(doctype="Source Sync", **fields)).insert(ignore_permissions=True)
+        frappe.db.commit()
+    except Exception:
+        # Bookkeeping must never be what kills a sync that already succeeded.
+        # The rows are written; losing the receipt is the lesser failure.
+        frappe.log_error(frappe.get_traceback(), f"Growth Portal: record sync {source}")
 
 
 def sync_source(key, days=3):
