@@ -143,9 +143,11 @@ Unchanged from v1 except where the three new adapters landed:
 | Ad-group / creative level | ❌ campaign only |
 | COGS per `item_code` | ❌ — no contribution margin, only revenue |
 | Cost per **delivered** order | ❌ needs COGS + order-level join |
-| Shopify / GA4 / Clarity / SEMrush | ❌ |
+| Shopify | ✅ adapter written and verified against live data |
+| Clarity | ⚠️ adapter written, **not verified** — API errored on 3 queries (likely quota) |
+| GA4 / SEMrush | ❌ |
 | AppsFlyer | ❌ — and the dashboard there reads 42.37 against a real 1.88 |
-| Deploy events on the timeline | ❌ — only ad-platform change logs |
+| Deploy events on the timeline | ✅ theme publishes, via the Shopify adapter |
 | Period-over-period comparison | ❌ — the Nov–Jan seasonal peak is invisible |
 | `Dormant` verdict | ❌ defined, never issued; `dormant_after_days` unused |
 
@@ -163,14 +165,22 @@ Unchanged from v1 except where the three new adapters landed:
 4. ✅ The three missing control ratios — now four: `items_per_order`,
    `confirmation_rate`, `delivery_rate`, `atc_to_purchase`
 5. ⬜ A per-platform config audit writing `Growth Finding`
-6. ⬜ Deploy events on the timeline (needs Shopify)
+6. ✅ Deploy events on the timeline — Shopify theme publishes
 
 **Then:**
 7. ✅ Step ceilings (15% on every Grow), pre-committed tests, automatic re-check
    — `Scale Commitment` + `commitments.review()` on the daily schedule
 8. ⬜ Ad-group and creative level
 9. ⬜ COGS → contribution margin → cost per delivered order
-10. ⬜ Shopify, GA4, Clarity, SEMrush, AppsFlyer
+10. ⬜ GA4, SEMrush, AppsFlyer (Shopify done; Clarity written, unverified)
+
+### Found while writing the Shopify adapter
+Shopify's own `conversion_rate` reads **0.0%** and
+`sessions_that_reached_checkout` reads **3-9/day** on days the store takes
+200-415 orders — the COD form bypasses Shopify's native checkout, so those
+metrics never fire. They are deliberately not imported. Site CVR is computed
+from Shopify's own order count instead, keeping both sides of the ratio in one
+system: **2.03% on 3 Aug** (415 orders / 20,426 sessions).
 
 Also done since v2: Overview KPIs, supplier and product segments,
 media-buyer performance and activity, and the `Dormant` verdict — declared

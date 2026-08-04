@@ -24,6 +24,10 @@ SOURCES = {
     "meta": "growth_portal.sources.meta.MetaSource",
     "google_ads": "growth_portal.sources.google_ads.GoogleAdsSource",
     "tiktok": "growth_portal.sources.tiktok.TikTokSource",
+    "shopify": "growth_portal.sources.shopify.ShopifySource",
+    # clarity is written but NOT registered: it was never verified against a
+    # live response, and a registered adapter that returns nothing makes the
+    # health strip report a source as live when it has never worked.
 }
 
 ANALYZERS = {
