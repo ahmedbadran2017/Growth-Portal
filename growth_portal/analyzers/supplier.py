@@ -39,6 +39,18 @@ class SupplierAnalyzer(Analyzer):
         gap_material=4.0,
         impact_floor=8000.0,
         kill_at=40.0,
+        # A supplier has no budget to raise. The lever here is catalogue weight
+        # and where the confirmation desk spends its calls.
+        act_grow=("Confirms above the book — give it more catalogue weight "
+                  "and promotion before the ones below it."),
+        act_fix=("A {gap:.1f} point confirmation gap on {sample} lines costs "
+                 "~{impact:,.0f} MAD/month. Check pricing, the product page and "
+                 "the call script before blaming the courier."),
+        act_kill=("Confirmation is structurally broken here — ~{impact:,.0f} MAD/month "
+                  "of orders never reach a courier. Pause new listings and renegotiate "
+                  "or drop the supplier."),
+        # Suppliers are a standing relationship, not a budget dial.
+        max_step_pct=0.0,
     )
 
     def collect(self, window_start, window_end):

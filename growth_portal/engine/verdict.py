@@ -66,6 +66,14 @@ class Rule:
     #: budget. Rows with no utilization at all are unaffected.
     min_utilization_to_grow: float = 60.0
 
+    #: What acting on this entity actually means. The defaults are spend-shaped
+    #: because campaigns were the first entity type, and on a supplier they read
+    #: as nonsense — the live run told JHome, a supplier, that "the same spend
+    #: buys a better result here". An analyzer sets these to its own verbs.
+    act_grow: str = "The same spend buys a better result here — a candidate to scale."
+    act_fix: str = "A {gap:.1f} point gap on {sample} costs ~{impact:,.0f} MAD/month"
+    act_kill: str = "Stop the spend — the gap costs ~{impact:,.0f} MAD/month"
+
     #: Written from the most expensive lesson so far: a 104% budget increase on
     #: TikTok took ROAS from 18.7 to 4.7 in two days and had to be reverted. A
     #: Grow verdict now carries its own step ceiling rather than saying "scale"
@@ -115,10 +123,18 @@ def judge(rows, rule, window_start, window_end, query_ref, now=None):
         if r.sample < rule.min_sample:
             # Not a verdict — an admission the sample cannot carry one. Said out
             # loud, because silence here reads as "nothing wrong".
-            if abs(gap) >= rule.gap_act:
-                out.append(_mk(WATCH, r, rule, base, 0, window_start, window_end, query_ref,
+            #
+            # But only when it would matter if it held. The first live run
+            # produced 18 of these against 4 real findings, every one of them a
+            # colour variant of the same sandal with an impact of zero, and they
+            # buried the results they were supposed to sit beside. The impact is
+            # now the hypothetical — what this gap would cost at this volume —
+            # so a Watch both earns its place and can be ranked against the rest.
+            if abs(gap) >= rule.gap_act and impact >= rule.impact_floor:
+                out.append(_mk(WATCH, r, rule, base, impact, window_start, window_end, query_ref,
                                f"Sample {r.sample} — below the minimum of {rule.min_sample}",
-                               "Wait for a longer window before judging"))
+                               f"Would be worth ~{impact:,.0f} MAD/month if it holds — "
+                               f"wait for a longer window before judging"))
             continue
 
         if rule.kill_at is not None and (
@@ -127,7 +143,7 @@ def judge(rows, rule, window_start, window_end, query_ref, now=None):
         ):
             out.append(_mk(KILL, r, rule, base, impact, window_start, window_end, query_ref,
                            f"{r.value:.1f} — below the viability floor of {rule.kill_at}",
-                           f"Stop the spend — the gap costs ~{impact:,.0f} MAD/month"))
+                           rule.act_kill.format(impact=impact, gap=gap, sample=r.sample)))
 
         elif gap >= rule.gap_act or (gap >= rule.gap_material and impact >= rule.impact_floor):
             # The second clause exists because gating on the percentage alone
@@ -136,7 +152,7 @@ def judge(rows, rule, window_start, window_end, query_ref, now=None):
             # percentage threshold would have reported only the small one.
             out.append(_mk(FIX, r, rule, base, impact, window_start, window_end, query_ref,
                            f"{r.value:.1f} vs {base:.1f} baseline",
-                           f"A {gap:.1f} point gap on {r.sample} orders costs ~{impact:,.0f} MAD/month"))
+                           rule.act_fix.format(gap=gap, sample=r.sample, impact=impact)))
 
         elif rule.dormant_after_days and r.extra.get("days_since_activity") is not None \
                 and r.extra["days_since_activity"] >= rule.dormant_after_days:
@@ -165,7 +181,7 @@ def judge(rows, rule, window_start, window_end, query_ref, now=None):
                 step = f" Step no more than +{rule.max_step_pct:.0f}%." if rule.max_step_pct else ""
                 out.append(_mk(GROW, r, rule, base, impact, window_start, window_end, query_ref,
                                f"{r.value:.1f} — {-gap:.1f} points above baseline",
-                               "The same spend buys a better result here — a candidate to scale." + step))
+                               rule.act_grow.format(impact=impact, gap=-gap, sample=r.sample) + step))
 
     out.sort(key=lambda v: v["impact_mad"], reverse=True)
     return out

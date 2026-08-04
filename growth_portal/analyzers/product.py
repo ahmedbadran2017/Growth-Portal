@@ -38,6 +38,13 @@ class ProductAnalyzer(Analyzer):
         gap_material=3.0,
         impact_floor=5000.0,
         kill_at=60.0,
+        act_grow=("Delivers above the book — worth more traffic and stock before "
+                  "the ones below it."),
+        act_fix=("A {gap:.1f} point delivery gap on {sample} resolved orders costs "
+                 "~{impact:,.0f} MAD/month. The failure mix below says who owns it."),
+        act_kill=("Structurally undelivered — ~{impact:,.0f} MAD/month is lost after "
+                  "the order is already paid for. Fix the page and the price, or delist."),
+        max_step_pct=0.0,
     )
 
     def collect(self, window_start, window_end):
