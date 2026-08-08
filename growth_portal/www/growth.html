@@ -10,6 +10,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#fafaf9">
 
+<script>
+  // Direction is decided here, before first paint. Frappe renders <html dir>
+  // from the SITE language (Arabic on this bench), but the portal's language is
+  // the user's own choice and defaults to English — so without this the page
+  // paints RTL and then snaps to LTR when the bundle loads.
+  // Same rule as applyDir() in useI18n.js; keep the two in step.
+  (function () {
+    try {
+      var l = localStorage.getItem("gp_lang") || "en";
+      document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+      document.documentElement.lang = l;
+    } catch (e) {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = "en";
+    }
+  })();
+</script>
+
 {{ include_style("growth_portal.bundle.css") }}
 <style>
   /* Hide Frappe's default website chrome */
@@ -47,7 +65,11 @@
 {%- block footer %}{%- endblock %}
 
 {%- block page_content %}
-<div id="app" dir="rtl"></div>
+<!-- No dir here on purpose. The direction belongs to <html>, which
+     useI18n.js sets from the chosen locale (ltr for en, rtl for ar).
+     A dir on this container would override that and pin the app to one
+     direction no matter which language the user picks. -->
+<div id="app"></div>
 {%- endblock %}
 
 {%- block script %}
