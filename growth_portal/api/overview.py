@@ -31,8 +31,15 @@ CONFIRMED = "Confirmed"
 
 
 def _rate():
-    """TRY→MAD. Returned with every converted figure, never applied silently."""
-    return frappe.conf.get("try_to_mad_rate")
+    """TRY→MAD, with its age and origin. Never applied silently.
+
+    Comes from `engine.fx`, which refreshes hourly and falls back to the
+    configured constant when the provider is unreachable. The whole dict is
+    returned, not the number, because the caller has to ship both.
+    """
+    from growth_portal.engine import fx
+
+    return fx.rate("TRY", "MAD")
 
 
 @frappe.whitelist()
@@ -128,8 +135,12 @@ def kpis(days=30):
             ],
             "total_try": round(try_total),
             # Converted only when a rate exists, and the rate ships with it.
-            "total_mad": round(try_total * rate) if rate else None,
-            "try_to_mad_rate": rate,
+            "total_mad": round(try_total * rate["value"]) if rate["value"] else None,
+            "try_to_mad_rate": rate["value"],
+            # Where that rate came from and how old it is. The number alone is
+            # not checkable — a live rate and a constant somebody typed in
+            # months ago look identical once they are printed.
+            "fx": rate,
             "sources_reporting": len(spend),
         },
         # Named `blended_` on purpose. This is spend ÷ orders across everything,

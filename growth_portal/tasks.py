@@ -323,6 +323,17 @@ def control_ratios():
 
 
 def hourly():
+    # Rates first, and in their own try. Every TRY→MAD figure on the overview
+    # depends on this, and it is the one step here that talks to a service
+    # nobody in this business controls — so it must not be able to take the
+    # syncs down with it, and it must not be skipped when a sync fails.
+    try:
+        from growth_portal.engine import fx
+
+        fx.refresh()
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Growth Portal: fx refresh")
+
     for key in SOURCES:
         try:
             sync_source(key)

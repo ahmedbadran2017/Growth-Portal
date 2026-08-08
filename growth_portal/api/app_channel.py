@@ -19,9 +19,13 @@ import frappe
 from growth_portal.engine import guard
 
 #: AppsFlyer reports USD; ad accounts report TRY. Nothing is converted unless a
-#: rate is configured, and the rate ships with the response.
+#: rate is configured, and the rate ships with the response. `engine.fx`
+#: refreshes hourly and falls back to the configured constant when the provider
+#: is unreachable; the whole dict travels, not just the number.
 def _rate():
-    return frappe.conf.get("usd_to_try_rate")
+    from growth_portal.engine import fx
+
+    return fx.rate("USD", "TRY")
 
 
 @frappe.whitelist()
@@ -90,8 +94,8 @@ def campaigns(days=30):
             "cost_per_purchase_cross_source": None,
         }
 
-        if s and float(s.spend or 0) > 0 and rate:
-            spend_usd = float(s.spend) / rate
+        if s and float(s.spend or 0) > 0 and rate["value"]:
+            spend_usd = float(s.spend) / rate["value"]
             row["spend_usd"] = round(spend_usd, 2)
             row["cross_source_roas"] = round(revenue_usd / spend_usd, 2)
             if purchases:
@@ -116,7 +120,10 @@ def campaigns(days=30):
             "purchases": round(sum(r["purchases"] for r in rows)),
             "revenue_usd": round(sum(r["revenue_usd"] for r in rows), 2),
         },
-        "usd_to_try_rate": rate,
+        "usd_to_try_rate": rate["value"],
+        # Origin and age of that rate — a live number and a hand-typed constant
+        # are indistinguishable once printed.
+        "fx": rate,
         # Stated once at the top and once per row. This is the whole caveat.
         "framing": (
             "Revenue, installs and purchases come from AppsFlyer (USD, UTC, cohort "

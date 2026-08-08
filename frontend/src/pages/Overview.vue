@@ -64,6 +64,21 @@
             <div v-if="k.spend?.total_mad" class="text-xs text-ink-500 mt-0.5">
               ≈ <b class="figure">{{ money(k.spend.total_mad) }}</b> MAD
               <span class="text-ink-300">@ {{ k.spend.try_to_mad_rate }}</span>
+              <!-- A rate pulled an hour ago and one typed into site_config
+                   months ago print identically. The origin is the only thing
+                   that tells them apart, so it sits next to the number. -->
+              <span
+                v-if="k.spend?.fx"
+                class="ms-1 px-1.5 py-0.5 rounded text-[10px] font-bold"
+                :class="k.spend.fx.stale
+                  ? 'bg-amber-50 text-amber-700'
+                  : 'bg-ink-100 text-ink-500'"
+                :title="k.spend.fx.provider || ''"
+              >
+                {{ k.spend.fx.source === "live"
+                    ? t("live") + " · " + fxAge(k.spend.fx.age_hours)
+                    : t("pinned in config") }}
+              </span>
             </div>
             <div v-else class="text-[11px] text-amber-700 mt-1">
               {{ t("No TRY→MAD rate configured — spend is not comparable to sales above") }}
@@ -114,5 +129,14 @@ const props = defineProps({ overview: Object, daily: { type: Array, default: () 
 
 const PLATFORM = { meta: "Meta", google_ads: "Google", tiktok: "TikTok" };
 const k = computed(() => props.overview || {});
+
+// Age in the coarsest unit that is still honest. "2h" and "3d" both answer the
+// only question being asked here — is this rate from today or from a while ago.
+function fxAge(hours) {
+  if (hours == null) return "";
+  if (hours < 1) return t("just now");
+  if (hours < 24) return `${Math.round(hours)}h`;
+  return `${Math.round(hours / 24)}d`;
+}
 const series = (field) => props.daily.map((d) => d[field]).filter((v) => v != null);
 </script>

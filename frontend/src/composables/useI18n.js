@@ -71,6 +71,11 @@ const AR = {
   "Ad spend, all platforms": "صرف الإعلانات، كل المنصات",
   "No TRY→MAD rate configured — spend is not comparable to sales above":
     "مفيش سعر تحويل ليرة←درهم — الصرف مش قابل للمقارنة بالمبيعات فوق",
+  // Origin of the exchange rate. "pinned in config" is not a failure — it is
+  // the fallback working — but it has no age, so it can never be shown as fresh.
+  live: "مباشر",
+  "pinned in config": "مثبّت في الإعدادات",
+  "just now": "دلوقتي",
   "No platform has reported spend yet — the adapters are written but have never run.":
     "مفيش منصة بلّغت صرف لسه — الـ adapters مكتوبة بس ما اشتغلتش.",
   "Blended cost / order": "تكلفة مخلوطة / أوردر",
